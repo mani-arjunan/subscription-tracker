@@ -28,8 +28,8 @@ export const ReminderService = {
     if (Notification.permission === 'granted') {
       try {
         new Notification(title, {
-          icon: '/src/assets/icon.svg',
-          badge: '/src/assets/icon.svg',
+          icon: '/icon-192x192.png',
+          badge: '/icon-192x192.png',
           ...options,
         });
       } catch (error) {

@@ -4,8 +4,13 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'selector',
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'custom-bg': '#0f1115',
+        'custom-fg': '#c9c2a6',
+      },
+    },
   },
-  plugins: [],
 }

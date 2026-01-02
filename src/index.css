@@ -1,6 +1,14 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+:root {
+  --color-bg: white;
+  --color-text: #000000;
+}
+
+:root.dark {
+  --color-bg: #0f1115;
+  --color-text: #c9c2a6;
+}
 
 * {
   margin: 0;
@@ -10,6 +18,69 @@
 
 body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Desktop button - show on medium screens and up */
+.desktop-button {
+  display: flex !important;
+}
+
+/* Mobile button - show on small screens only */
+.mobile-button {
+  display: flex !important;
+}
+
+/* Hide desktop button on mobile */
+@media (max-width: 768px) {
+  .desktop-button {
+    display: none !important;
+  }
+}
+
+/* Hide mobile button on desktop/tablet */
+@media (min-width: 769px) {
+  .mobile-button {
+    display: none !important;
+  }
+}
+
+/* Stats cards - hide full on mobile, show on desktop */
+.stats-full {
+  display: grid !important;
+}
+
+.stats-mobile {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .stats-full {
+    display: none !important;
+  }
+
+  .stats-mobile {
+    display: grid !important;
+  }
+}
+
+/* Filter UI - show buttons on desktop, dropdown on mobile */
+.filter-buttons {
+  display: block !important;
+}
+
+.filter-dropdown {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .filter-buttons {
+    display: none !important;
+  }
+
+  .filter-dropdown {
+    display: block !important;
+  }
 }

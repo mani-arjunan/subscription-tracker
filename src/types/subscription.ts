@@ -15,8 +15,3 @@ export interface Subscription {
   createdAt: string;
   notes?: string;
 }
-
-export interface ReminderConfig {
-  enabled: boolean;
-  useBrowserNotifications: boolean;
-}
