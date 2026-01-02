@@ -256,6 +256,7 @@ export const Dashboard: React.FC = () => {
       const bRenewalDate = new Date(b.renewalDate).getTime();
       return aRenewalDate - bRenewalDate;
     });
+    console.log('ALL ENV:', import.meta.env);
 
   return (
     <div style={{ backgroundColor: bgColor, color: textColor, minHeight: '100vh' }}>
