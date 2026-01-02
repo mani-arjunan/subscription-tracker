@@ -256,7 +256,6 @@ export const Dashboard: React.FC = () => {
       const bRenewalDate = new Date(b.renewalDate).getTime();
       return aRenewalDate - bRenewalDate;
     });
-    console.log('ALL ENV:', import.meta.env);
 
   return (
     <div style={{ backgroundColor: bgColor, color: textColor, minHeight: '100vh' }}>
@@ -440,7 +439,7 @@ export const Dashboard: React.FC = () => {
               >
                 📅 Export to Calendar
               </button>
-              {import.meta.env.DEV_ENVIRONMENT && (
+              {import.meta.env.VITE_DEV_ENVIRONMENT && (
                 <>
                   <button
                     onClick={handleLoadTestData}
