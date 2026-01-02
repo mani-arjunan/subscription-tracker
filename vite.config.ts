@@ -20,19 +20,19 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'icon-192x192.png',
+            src: '/icon-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: 'icon-512x512.png',
+            src: '/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any',
           },
           {
-            src: 'apple-touch-icon-180x180.png',
+            src: '/apple-touch-icon-180x180.png',
             sizes: '180x180',
             type: 'image/png',
             purpose: 'any',
@@ -40,7 +40,7 @@ export default defineConfig({
         ],
         screenshots: [
           {
-            src: 'icon-512x512.png',
+            src: '/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             form_factor: 'wide',

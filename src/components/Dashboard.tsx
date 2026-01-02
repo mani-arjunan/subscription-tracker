@@ -439,7 +439,7 @@ export const Dashboard: React.FC = () => {
               >
                 📅 Export to Calendar
               </button>
-              {import.meta.env.DEV_ENVIRONMENT && (
+              {import.meta.env.VITE_DEV_ENVIRONMENT && (
                 <>
                   <button
                     onClick={handleLoadTestData}
