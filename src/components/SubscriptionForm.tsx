@@ -212,7 +212,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
     } else {
       setFormData((prev) => ({
         ...prev,
-        [name]: name === 'cost' || name === 'reminderDaysBefore' ? parseFloat(value) || 0 : value,
+        [name]: name === 'cost' || name === 'reminderDaysBefore' ? (value === '' ? '' : parseFloat(value) || 0) : value,
       }));
     }
 
@@ -338,6 +338,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
               onChange={handleChange}
               step="0.01"
               placeholder="0.00"
+              inputMode="decimal"
               style={baseFieldStyle('cost') as any}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = errors['cost'] ? errorColor : (isDark ? 'rgba(201, 194, 166, 0.4)' : '#2563eb');
@@ -451,6 +452,7 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
               onChange={handleChange}
               min="1"
               max="30"
+              inputMode="numeric"
               style={baseFieldStyle('reminderDaysBefore') as any}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = errors['reminderDaysBefore'] ? errorColor : (isDark ? 'rgba(201, 194, 166, 0.4)' : '#2563eb');
