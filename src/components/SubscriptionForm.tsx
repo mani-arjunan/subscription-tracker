@@ -117,15 +117,6 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
       // Renewal Date validation
       if (!formData.renewalDate) {
         newErrors.renewalDate = 'Renewal date is required';
-      } else {
-        const [year, month, day] = formData.renewalDate.split('-').map(Number);
-        const selectedDate = new Date(year, month - 1, day);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        if (selectedDate < today) {
-          newErrors.renewalDate = 'Renewal date cannot be in the past';
-        }
       }
       // Reminder Days validation
       if (formData.reminderDaysBefore < 1) {
@@ -163,15 +154,6 @@ export const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
     // Renewal Date validation
     if (!formData.renewalDate) {
       newErrors.renewalDate = 'Renewal date is required';
-    } else {
-      const [year, month, day] = formData.renewalDate.split('-').map(Number);
-      const selectedDate = new Date(year, month - 1, day);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (selectedDate < today) {
-        newErrors.renewalDate = 'Renewal date cannot be in the past';
-      }
     }
 
     // Reminder Days validation

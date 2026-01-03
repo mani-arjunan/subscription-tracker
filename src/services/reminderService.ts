@@ -87,21 +87,27 @@ export const ReminderService = {
         (renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      if (daysUntilRenewal <= sub.reminderDaysBefore) {
-        // const reminderKey = `reminded-${sub.id}-${new Date().getTime()}`
-        // if (!localStorage.getItem(reminderKey)) {
-          ReminderService.sendNotification(
-            `${sub.name} subscription renews soon`,
-            {
-              body: `Your ${sub.name} subscription will renew in ${daysUntilRenewal} days (${new Date(
-                sub.renewalDate
-              ).toLocaleDateString()})`,
-              tag: `reminder-${sub.id}`,
-            }
-          );
-          // localStorage.setItem(reminderKey, 'true');
-        // }
+      // Only notify for upcoming renewals (positive days) or if expired today
+      if (daysUntilRenewal === 0) {
+        // Expired today
+        ReminderService.sendNotification(
+          `${sub.name} subscription expired today`,
+          {
+            body: `Your ${sub.name} subscription expired on ${renewalDate.toLocaleDateString()}. Please renew it.`,
+            tag: `reminder-${sub.id}`,
+          }
+        );
+      } else if (daysUntilRenewal > 0 && daysUntilRenewal <= sub.reminderDaysBefore) {
+        // Upcoming renewal within reminder window
+        ReminderService.sendNotification(
+          `${sub.name} subscription renews soon`,
+          {
+            body: `Your ${sub.name} subscription will renew in ${daysUntilRenewal} days (${renewalDate.toLocaleDateString()})`,
+            tag: `reminder-${sub.id}`,
+          }
+        );
       }
+      // Do NOT notify for negative days (already expired) to avoid spam
     });
   },
 

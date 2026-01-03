@@ -12,6 +12,7 @@ import { calendarService } from '../services/calendarService';
 import { useTheme } from '../context/ThemeContext';
 import { Plus, Upload, Bell, Settings, Moon, Sun } from 'lucide-react';
 import { testSubscriptions } from '../data/testData';
+import { isExpired } from '../utils/subscriptionUtils';
 
 const CATEGORIES: Category[] = ['streaming', 'music', 'productivity', 'gaming', 'education', 'other'];
 
@@ -264,10 +265,10 @@ export const Dashboard: React.FC = () => {
   );
 
   // Calculate stats based on filtered subscriptions
-  const activeCount = filteredSubscriptions.filter((sub) => sub.status === 'active').length;
+  const activeCount = filteredSubscriptions.filter((sub) => sub.status === 'active' && !isExpired(sub)).length;
 
   const totalMonthlyCost = filteredSubscriptions
-    .filter((sub) => sub.status === 'active')
+    .filter((sub) => sub.status === 'active' && !isExpired(sub))
     .reduce((sum, sub) => {
       const multiplier = {
         monthly: 1,
@@ -280,7 +281,7 @@ export const Dashboard: React.FC = () => {
 
   const upcomingRenewals = filteredSubscriptions
     .filter((sub) => {
-      if (sub.status !== 'active') return false;
+      if (sub.status !== 'active' || isExpired(sub)) return false;
       const renewalDate = new Date(sub.renewalDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -291,6 +292,17 @@ export const Dashboard: React.FC = () => {
       const aRenewalDate = new Date(a.renewalDate).getTime();
       const bRenewalDate = new Date(b.renewalDate).getTime();
       return aRenewalDate - bRenewalDate;
+    });
+
+  const expiredRenewals = filteredSubscriptions
+    .filter((sub) => {
+      if (sub.status !== 'active') return false;
+      return isExpired(sub);
+    })
+    .sort((a, b) => {
+      const aRenewalDate = new Date(a.renewalDate).getTime();
+      const bRenewalDate = new Date(b.renewalDate).getTime();
+      return bRenewalDate - aRenewalDate; // Most recently expired first
     });
 
   return (
@@ -613,53 +625,74 @@ export const Dashboard: React.FC = () => {
               transition: 'all 0.2s',
               borderRadius: '8px',
               padding: 'clamp(12px, 4vw, 20px)',
-              border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
-              backgroundColor: isDark ? 'transparent' : '#f9f9f9',
+              border: expiredRenewals.length > 0 ? `1px solid rgba(239, 68, 68, 0.3)` : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
+              backgroundColor: expiredRenewals.length > 0 ? (isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2') : (isDark ? 'transparent' : '#f9f9f9'),
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
-              e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
+              if (expiredRenewals.length > 0) {
+                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.5)`;
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2';
+              } else {
+                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
-              e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
+              if (expiredRenewals.length > 0) {
+                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.3)`;
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2';
+              } else {
+                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
+                e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
+              }
             }}
           >
             <p style={{
               fontSize: 'clamp(0.7rem, 2vw, 0.875rem)',
               fontWeight: '500',
               marginBottom: '6px',
-              color: isDark ? '#c9c2a6' : '#666666',
-              opacity: 0.8,
+              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#666666'),
+              opacity: expiredRenewals.length > 0 ? 1 : 0.8,
               margin: 0,
             }}>
-              Upcoming Renewals
+              {expiredRenewals.length > 0 ? '⚠️ Action Needed' : 'Renewals'}
             </p>
             <p style={{
               fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
               fontWeight: 'bold',
-              color: isDark ? '#c9c2a6' : '#000000',
+              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#000000'),
               marginBottom: '4px',
               lineHeight: '1.2',
               margin: 0,
             }}>
-              {upcomingRenewals.length}
+              {expiredRenewals.length + upcomingRenewals.length}
             </p>
+            {expiredRenewals.length > 0 && (
+              <p style={{
+                fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
+                marginTop: '4px',
+                color: '#ef4444',
+                fontWeight: '600',
+                margin: 0,
+              }}>
+                {expiredRenewals.length} expired
+              </p>
+            )}
             <p style={{
               fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
-              marginTop: '4px',
+              marginTop: expiredRenewals.length > 0 ? '2px' : '4px',
               color: isDark ? '#c9c2a6' : '#999999',
               opacity: 0.7,
               margin: 0,
             }}>
-              Next 30 days
+              {expiredRenewals.length > 0 ? `${upcomingRenewals.length} upcoming` : 'Next 30 days'}
             </p>
             <div style={{
               fontSize: 'clamp(1.5rem, 4vw, 2rem)',
               opacity: 0.6,
               marginTop: '8px',
             }}>
-              📅
+              {expiredRenewals.length > 0 ? '🔴' : '📅'}
             </div>
           </div>
         </div>
@@ -677,53 +710,74 @@ export const Dashboard: React.FC = () => {
               transition: 'all 0.2s',
               borderRadius: '8px',
               padding: 'clamp(12px, 4vw, 20px)',
-              border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
-              backgroundColor: isDark ? 'transparent' : '#f9f9f9',
+              border: expiredRenewals.length > 0 ? `1px solid rgba(239, 68, 68, 0.3)` : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
+              backgroundColor: expiredRenewals.length > 0 ? (isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2') : (isDark ? 'transparent' : '#f9f9f9'),
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
-              e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
+              if (expiredRenewals.length > 0) {
+                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.5)`;
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2';
+              } else {
+                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
-              e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
+              if (expiredRenewals.length > 0) {
+                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.3)`;
+                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2';
+              } else {
+                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
+                e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
+              }
             }}
           >
             <p style={{
               fontSize: 'clamp(0.7rem, 2vw, 0.875rem)',
               fontWeight: '500',
               marginBottom: '6px',
-              color: isDark ? '#c9c2a6' : '#666666',
-              opacity: 0.8,
+              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#666666'),
+              opacity: expiredRenewals.length > 0 ? 1 : 0.8,
               margin: 0,
             }}>
-              Renewals
+              {expiredRenewals.length > 0 ? '⚠️ Action Needed' : 'Renewals'}
             </p>
             <p style={{
               fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
               fontWeight: 'bold',
-              color: isDark ? '#c9c2a6' : '#000000',
+              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#000000'),
               marginBottom: '4px',
               lineHeight: '1.2',
               margin: 0,
             }}>
-              {upcomingRenewals.length}
+              {expiredRenewals.length + upcomingRenewals.length}
             </p>
+            {expiredRenewals.length > 0 && (
+              <p style={{
+                fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
+                marginTop: '4px',
+                color: '#ef4444',
+                fontWeight: '600',
+                margin: 0,
+              }}>
+                {expiredRenewals.length} expired
+              </p>
+            )}
             <p style={{
               fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
-              marginTop: '4px',
+              marginTop: expiredRenewals.length > 0 ? '2px' : '4px',
               color: isDark ? '#c9c2a6' : '#999999',
               opacity: 0.7,
               margin: 0,
             }}>
-              30 days
+              {expiredRenewals.length > 0 ? `${upcomingRenewals.length} upcoming` : '30 days'}
             </p>
             <div style={{
               fontSize: 'clamp(1.5rem, 4vw, 2rem)',
               opacity: 0.6,
               marginTop: '8px',
             }}>
-              📅
+              {expiredRenewals.length > 0 ? '🔴' : '📅'}
             </div>
           </div>
         </div>
@@ -1025,83 +1079,180 @@ export const Dashboard: React.FC = () => {
             </div>
 
             <div style={{ padding: '16px' }}>
-              {upcomingRenewals.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {upcomingRenewals.map((sub) => {
-                    const renewalDate = new Date(sub.renewalDate);
-                    const today = new Date();
-                    const daysLeft = Math.ceil((renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+              {expiredRenewals.length > 0 || upcomingRenewals.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {/* Expired Renewals Section */}
+                  {expiredRenewals.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#ef4444', marginBottom: '12px', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        🔴 Action Required - Expired
+                      </h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {expiredRenewals.map((sub) => {
+                          const renewalDate = new Date(sub.renewalDate);
+                          const today = new Date();
+                          const daysOverdue = Math.floor((today.getTime() - renewalDate.getTime()) / (1000 * 60 * 60 * 24));
 
-                    return (
-                      <div
-                        key={sub.id}
-                        style={{
-                          padding: '12px',
-                          borderRadius: '6px',
-                          border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
-                          backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                          <div>
-                            <p style={{ fontSize: '1rem', fontWeight: 'bold', color: textColor, margin: '0 0 4px 0' }}>
-                              {sub.name}
-                            </p>
-                            <p style={{ fontSize: '0.875rem', color: isDark ? '#c9c2a6' : '#666666', opacity: 0.7, margin: 0 }}>
-                              ₹ {sub.cost.toFixed(0)} • {sub.billingCycle}
-                            </p>
-                          </div>
-                          <span
-                            style={{
-                              padding: '4px 12px',
-                              borderRadius: '9999px',
-                              fontSize: '0.75rem',
-                              fontWeight: '600',
-                              backgroundColor: daysLeft <= 7 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                              color: daysLeft <= 7 ? '#ef4444' : '#3b82f6',
-                              border: `1px solid ${daysLeft <= 7 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
-                            }}
-                          >
-                            {daysLeft} days
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                          <p style={{ fontSize: '0.875rem', color: isDark ? '#c9c2a6' : '#666666', margin: 0 }}>
-                            Renews on {renewalDate.toLocaleDateString()}
-                          </p>
-                          {sub.provider && (
-                            <button
-                              onClick={() => window.open(getRenewalUrl(sub.provider), '_blank')}
+                          return (
+                            <div
+                              key={sub.id}
                               style={{
-                                padding: '4px 10px',
-                                backgroundColor: isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308',
-                                color: isDark ? '#facc15' : 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                fontWeight: '600',
-                                fontSize: '0.75rem',
-                                transition: 'background-color 0.2s',
+                                padding: '12px',
+                                borderRadius: '6px',
+                                border: `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : '#fecaca'}`,
+                                backgroundColor: isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2',
                               }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.3)' : '#ca8a04';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308';
-                              }}
-                              title={`Renew at ${sub.provider}`}
                             >
-                              Renew Now
-                            </button>
-                          )}
-                        </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                <div>
+                                  <p style={{ fontSize: '1rem', fontWeight: 'bold', color: textColor, margin: '0 0 4px 0' }}>
+                                    {sub.name}
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem', color: isDark ? '#c9c2a6' : '#666666', opacity: 0.7, margin: 0 }}>
+                                    ₹ {sub.cost.toFixed(0)} • {sub.billingCycle}
+                                  </p>
+                                </div>
+                                <span
+                                  style={{
+                                    padding: '4px 12px',
+                                    borderRadius: '9999px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '600',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                    color: '#ef4444',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  }}
+                                >
+                                  {daysOverdue} days overdue
+                                </span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <p style={{ fontSize: '0.875rem', color: '#ef4444', fontWeight: '600', margin: 0 }}>
+                                  Expired on {renewalDate.toLocaleDateString()}
+                                </p>
+                                {sub.provider && (
+                                  <button
+                                    onClick={() => window.open(getRenewalUrl(sub.provider), '_blank')}
+                                    style={{
+                                      padding: '4px 10px',
+                                      backgroundColor: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2',
+                                      color: isDark ? '#f87171' : '#dc2626',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer',
+                                      fontWeight: '600',
+                                      fontSize: '0.75rem',
+                                      transition: 'background-color 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.3)' : '#fecaca';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2';
+                                    }}
+                                    title={`Renew at ${sub.provider}`}
+                                  >
+                                    Renew Now
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
+                    </div>
+                  )}
+
+                  {/* Divider */}
+                  {expiredRenewals.length > 0 && upcomingRenewals.length > 0 && (
+                    <div style={{ height: '1px', backgroundColor: isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb' }} />
+                  )}
+
+                  {/* Upcoming Renewals Section */}
+                  {upcomingRenewals.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '0.95rem', fontWeight: '700', color: isDark ? '#c9c2a6' : '#666666', marginBottom: '12px', margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        📅 Upcoming Renewals
+                      </h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {upcomingRenewals.map((sub) => {
+                          const renewalDate = new Date(sub.renewalDate);
+                          const today = new Date();
+                          const daysLeft = Math.ceil((renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+                          return (
+                            <div
+                              key={sub.id}
+                              style={{
+                                padding: '12px',
+                                borderRadius: '6px',
+                                border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
+                                backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                <div>
+                                  <p style={{ fontSize: '1rem', fontWeight: 'bold', color: textColor, margin: '0 0 4px 0' }}>
+                                    {sub.name}
+                                  </p>
+                                  <p style={{ fontSize: '0.875rem', color: isDark ? '#c9c2a6' : '#666666', opacity: 0.7, margin: 0 }}>
+                                    ₹ {sub.cost.toFixed(0)} • {sub.billingCycle}
+                                  </p>
+                                </div>
+                                <span
+                                  style={{
+                                    padding: '4px 12px',
+                                    borderRadius: '9999px',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '600',
+                                    backgroundColor: daysLeft <= 7 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                                    color: daysLeft <= 7 ? '#ef4444' : '#3b82f6',
+                                    border: `1px solid ${daysLeft <= 7 ? 'rgba(239, 68, 68, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
+                                  }}
+                                >
+                                  {daysLeft} days
+                                </span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <p style={{ fontSize: '0.875rem', color: isDark ? '#c9c2a6' : '#666666', margin: 0 }}>
+                                  Renews on {renewalDate.toLocaleDateString()}
+                                </p>
+                                {sub.provider && (
+                                  <button
+                                    onClick={() => window.open(getRenewalUrl(sub.provider), '_blank')}
+                                    style={{
+                                      padding: '4px 10px',
+                                      backgroundColor: isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308',
+                                      color: isDark ? '#facc15' : 'white',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer',
+                                      fontWeight: '600',
+                                      fontSize: '0.75rem',
+                                      transition: 'background-color 0.2s',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.3)' : '#ca8a04';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308';
+                                    }}
+                                    title={`Renew at ${sub.provider}`}
+                                  >
+                                    Renew Now
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p style={{ textAlign: 'center', color: isDark ? '#c9c2a6' : '#666666', opacity: 0.7, padding: '20px 0', fontSize: '0.95rem' }}>
-                  No upcoming renewals in the next 30 days
+                  No renewals to manage
                 </p>
               )}
             </div>

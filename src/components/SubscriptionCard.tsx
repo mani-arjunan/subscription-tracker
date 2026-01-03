@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Subscription, Category } from '../types/subscription';
 import { Edit2, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { getDaysUntilRenewal, isUpcomingSoon as checkIsUpcomingSoon, isExpired } from '../utils/subscriptionUtils';
 
 interface SubscriptionCardProps {
   subscription: Subscription;
@@ -103,11 +104,9 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   const renewalDate = new Date(subscription.renewalDate);
-  const today = new Date();
-  const daysUntilRenewal = Math.ceil(
-    (renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-  );
-  const isUpcomingSoon = daysUntilRenewal <= subscription.reminderDaysBefore && daysUntilRenewal > 0;
+  const daysUntilRenewal = getDaysUntilRenewal(subscription);
+  const isUpcomingSoon = checkIsUpcomingSoon(subscription);
+  const isSubscriptionExpired = isExpired(subscription);
 
   const billingCycleMultiplier = {
     monthly: 1,
@@ -142,18 +141,21 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                 fontSize: '0.8rem',
                 fontWeight: '500',
                 border: `1px solid ${
+                  isSubscriptionExpired ? '#ef4444' :
                   subscription.status === 'active' ? '#10b981' :
                   subscription.status === 'paused' ? '#eab308' : '#ef4444'
                 }`,
                 backgroundColor:
+                  isSubscriptionExpired ? 'rgba(239, 68, 68, 0.1)' :
                   subscription.status === 'active' ? 'rgba(16, 185, 129, 0.1)' :
                   subscription.status === 'paused' ? 'rgba(234, 179, 8, 0.1)' : 'rgba(239, 68, 68, 0.1)',
                 color:
+                  isSubscriptionExpired ? '#ef4444' :
                   subscription.status === 'active' ? '#10b981' :
                   subscription.status === 'paused' ? '#eab308' : '#ef4444',
                 whiteSpace: 'nowrap',
               }}>
-                {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+                {isSubscriptionExpired ? 'Expired' : subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
               </span>
               <span style={{
                 display: 'inline-block',
@@ -215,11 +217,13 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             </div>
             <div>
               <p style={{ fontSize: '0.875rem', color: secondaryTextColor, opacity: 0.7, margin: '0 0 4px 0', fontWeight: '500' }}>Status</p>
-              <p style={{ fontSize: '0.95rem', color: textColor, margin: 0, textTransform: 'capitalize' }}>{subscription.status}</p>
+              <p style={{ fontSize: '0.95rem', color: textColor, margin: 0, textTransform: 'capitalize' }}>{isSubscriptionExpired ? 'Expired' : subscription.status}</p>
             </div>
             <div>
               <p style={{ fontSize: '0.875rem', color: secondaryTextColor, opacity: 0.7, margin: '0 0 4px 0', fontWeight: '500' }}>Next Renewal</p>
-              <p style={{ fontSize: '0.95rem', color: textColor, margin: 0 }}>{renewalDate.toLocaleDateString()} ({daysUntilRenewal > 0 ? daysUntilRenewal : 0} days)</p>
+              <p style={{ fontSize: '0.95rem', color: isSubscriptionExpired ? '#ef4444' : textColor, margin: 0, fontWeight: isSubscriptionExpired ? '600' : 'normal' }}>
+                {renewalDate.toLocaleDateString()} ({isSubscriptionExpired ? 'Expired' : `${daysUntilRenewal} days`})
+              </p>
             </div>
             <div>
               <p style={{ fontSize: '0.875rem', color: secondaryTextColor, opacity: 0.7, margin: '0 0 4px 0', fontWeight: '500' }}>Reminder Days</p>
@@ -238,7 +242,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
 
         {/* Footer - Action Buttons */}
         <div style={{ padding: '16px', display: 'flex', gap: '8px' }}>
-          {isUpcomingSoon && subscription.provider && (
+          {(isUpcomingSoon || isSubscriptionExpired) && subscription.provider && (
             <button
               onClick={() => window.open(getRenewalUrl(subscription.provider), '_blank')}
               style={{
@@ -251,20 +255,28 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                 padding: '10px 0',
                 borderRadius: '8px',
                 border: 'none',
-                backgroundColor: isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308',
-                color: isDark ? '#facc15' : 'white',
+                backgroundColor: isSubscriptionExpired ? (isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2') : (isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308'),
+                color: isSubscriptionExpired ? (isDark ? '#f87171' : '#dc2626') : (isDark ? '#facc15' : 'white'),
                 cursor: 'pointer',
                 transition: 'background-color 0.2s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.3)' : '#ca8a04';
+                if (isSubscriptionExpired) {
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.3)' : '#fecaca';
+                } else {
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.3)' : '#ca8a04';
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308';
+                if (isSubscriptionExpired) {
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2';
+                } else {
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308';
+                }
               }}
               title={`Renew at ${subscription.provider}`}
             >
-              🔄 Renew Now
+              {isSubscriptionExpired ? '🔴 Renew Now' : '🔄 Renew Now'}
             </button>
           )}
           <button
@@ -357,17 +369,20 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               fontSize: '0.8rem',
               fontWeight: '500',
               border: `1px solid ${
+                isSubscriptionExpired ? '#ef4444' :
                 subscription.status === 'active' ? '#10b981' :
                 subscription.status === 'paused' ? '#eab308' : '#ef4444'
               }`,
               backgroundColor:
+                isSubscriptionExpired ? 'rgba(239, 68, 68, 0.1)' :
                 subscription.status === 'active' ? 'rgba(16, 185, 129, 0.1)' :
                 subscription.status === 'paused' ? 'rgba(234, 179, 8, 0.1)' : 'rgba(239, 68, 68, 0.1)',
               color:
+                isSubscriptionExpired ? '#ef4444' :
                 subscription.status === 'active' ? '#10b981' :
                 subscription.status === 'paused' ? '#eab308' : '#ef4444',
             }}>
-              {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
+              {isSubscriptionExpired ? 'Expired' : subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}
             </span>
             <span style={{
               display: 'inline-block',
@@ -430,21 +445,25 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         <div style={{ marginBottom: '28px' }}>
           <span style={{ color: secondaryTextColor, opacity: 0.6, fontSize: '0.85rem', fontWeight: '600', letterSpacing: '0.5px' }}>Next Renewal</span>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
-            <p style={{ fontWeight: '600', color: textColor, fontSize: '1.1rem', margin: 0 }}>
+            <p style={{ fontWeight: isSubscriptionExpired ? '700' : '600', color: isSubscriptionExpired ? '#ef4444' : textColor, fontSize: '1.1rem', margin: 0 }}>
               {renewalDate.toLocaleDateString()}
-              {daysUntilRenewal > 0 && (
+              {isSubscriptionExpired ? (
+                <span style={{ marginLeft: '8px', fontSize: '0.85rem', color: '#ef4444', fontWeight: '700' }}>
+                  Expired
+                </span>
+              ) : daysUntilRenewal > 0 && (
                 <span style={{ marginLeft: '8px', fontSize: '0.85rem', color: isUpcomingSoon ? '#ef4444' : secondaryTextColor, fontWeight: isUpcomingSoon ? '700' : '500', opacity: isUpcomingSoon ? 1 : 0.7 }}>
                   {daysUntilRenewal}d
                 </span>
               )}
             </p>
-            {isUpcomingSoon && subscription.provider && (
+            {(isUpcomingSoon || isSubscriptionExpired) && subscription.provider && (
               <button
                 onClick={() => window.open(getRenewalUrl(subscription.provider), '_blank')}
                 style={{
                   padding: '6px 14px',
-                  backgroundColor: isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308',
-                  color: isDark ? '#facc15' : 'white',
+                  backgroundColor: isSubscriptionExpired ? (isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2') : (isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308'),
+                  color: isSubscriptionExpired ? (isDark ? '#f87171' : '#dc2626') : (isDark ? '#facc15' : 'white'),
                   border: 'none',
                   borderRadius: '6px',
                   cursor: 'pointer',
@@ -454,14 +473,22 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                   transition: 'background-color 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.3)' : '#ca8a04';
+                  if (isSubscriptionExpired) {
+                    e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.3)' : '#fecaca';
+                  } else {
+                    e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.3)' : '#ca8a04';
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308';
+                  if (isSubscriptionExpired) {
+                    e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2';
+                  } else {
+                    e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.2)' : '#eab308';
+                  }
                 }}
                 title={`Renew at ${subscription.provider}`}
               >
-                Renew
+                {isSubscriptionExpired ? '🔴 Renew' : 'Renew'}
               </button>
             )}
           </div>

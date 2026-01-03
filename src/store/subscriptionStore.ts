@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Subscription, Category, SortField, SortDirection } from '../types/subscription';
+import { isExpired } from '../utils/subscriptionUtils';
 
 const STORAGE_KEY = 'subscriptions';
 
@@ -42,7 +43,7 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   subscriptions: [],
   currency: 'USD',
   reminderDaysDefault: 7,
-  sortBy: 'renewalDate',
+  sortBy: 'status',
   sortDirection: 'asc',
 
   addSubscription: (sub) => {
@@ -157,8 +158,11 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
           break;
         }
         case 'status': {
-          const statusOrder = { active: 0, paused: 1, cancelled: 2 };
-          comparison = statusOrder[a.status] - statusOrder[b.status];
+          const statusOrder = { active: 0, paused: 1, cancelled: 2, expired: 3 };
+          // Use display status (expired takes precedence over active)
+          const displayStatusA = isExpired(a) && a.status === 'active' ? 'expired' : a.status;
+          const displayStatusB = isExpired(b) && b.status === 'active' ? 'expired' : b.status;
+          comparison = statusOrder[displayStatusA] - statusOrder[displayStatusB];
           break;
         }
       }
