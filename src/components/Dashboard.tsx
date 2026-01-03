@@ -808,7 +808,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Filter & Sort Controls - Combined Row */}
-        <div style={{ marginBottom: '40px', display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        <div style={{ marginBottom: '15px', display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           {/* Category Filter - Desktop view (dropdown) */}
           <div style={{ flex: 1, minWidth: '150px' }} className="filter-buttons">
             <select
