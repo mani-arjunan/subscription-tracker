@@ -788,23 +788,25 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Active Count Badge */}
+        <div style={{ marginBottom: '12px' }}>
+          <span style={{
+            fontSize: '0.8rem',
+            fontWeight: '600',
+            backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
+            color: isDark ? '#60a5fa' : '#2563eb',
+            padding: '4px 12px',
+            borderRadius: '9999px',
+            border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`,
+          }}>
+            {activeCount} active
+          </span>
+        </div>
+
         {/* Filter & Sort Controls - Combined Row */}
         <div style={{ marginBottom: '40px', display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
           {/* Category Filter - Desktop view (buttons) */}
           <div style={{ flex: 1, minWidth: '300px' }} className="filter-buttons">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-              <span style={{
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
-                color: isDark ? '#60a5fa' : '#2563eb',
-                padding: '4px 12px',
-                borderRadius: '9999px',
-                border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`,
-              }}>
-                {activeCount} active
-              </span>
-            </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               <button
                 onClick={() => setSelectedCategory('all')}
@@ -848,19 +850,6 @@ export const Dashboard: React.FC = () => {
 
           {/* Category Filter - Mobile view (dropdown) */}
           <div style={{ flex: 1, minWidth: '150px' }} className="filter-dropdown">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-              <span style={{
-                fontSize: '0.8rem',
-                fontWeight: '600',
-                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
-                color: isDark ? '#60a5fa' : '#2563eb',
-                padding: '4px 12px',
-                borderRadius: '9999px',
-                border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`,
-              }}>
-                {activeCount} active
-              </span>
-            </div>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value as Category | 'all')}
