@@ -3,7 +3,6 @@ import { useSubscriptionStore } from '../store/subscriptionStore';
 import type { Subscription, Category } from '../types/subscription';
 import { SubscriptionCard } from './SubscriptionCard';
 import { SubscriptionForm } from './SubscriptionForm';
-import { CostStatsCard } from './CostStatsCard';
 import { SortDropdown } from './SortDropdown';
 import { InstallPrompt } from './InstallPrompt';
 import { ReminderService } from '../services/reminderService';
@@ -95,6 +94,7 @@ export const Dashboard: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showUpcomingRenewals, setShowUpcomingRenewals] = useState(false);
   const [showBackupSettings, setShowBackupSettings] = useState(false);
+  const [selectedCostCycle, setSelectedCostCycle] = useState<'monthly' | 'quarterly' | 'bi-annual' | 'yearly'>('monthly');
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#0f1115' : '#ffffff';
@@ -278,6 +278,19 @@ export const Dashboard: React.FC = () => {
       }[sub.billingCycle] || 1;
       return sum + sub.cost * multiplier;
     }, 0);
+
+  // Calculate cost for selected cycle
+  const getCostForCycle = (cycle: 'monthly' | 'quarterly' | 'bi-annual' | 'yearly') => {
+    const cycleMultiplier = {
+      monthly: 1,
+      quarterly: 3,
+      'bi-annual': 6,
+      yearly: 12,
+    }[cycle];
+    return Math.round(totalMonthlyCost * cycleMultiplier);
+  };
+
+  const selectedCycleCost = getCostForCycle(selectedCostCycle);
 
   const upcomingRenewals = filteredSubscriptions
     .filter((sub) => {
@@ -612,173 +625,147 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Stats Grid - Desktop/Tablet view (2 stats: Cost + Upcoming Renewals) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '40px' }} className="stats-full">
-          <CostStatsCard
-            totalMonthlyCost={totalMonthlyCost}
-            icon="💰"
-          />
-          <div
-            onClick={() => setShowUpcomingRenewals(true)}
-            style={{
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              borderRadius: '8px',
-              padding: 'clamp(12px, 4vw, 20px)',
-              border: expiredRenewals.length > 0 ? `1px solid rgba(239, 68, 68, 0.3)` : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
-              backgroundColor: expiredRenewals.length > 0 ? (isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2') : (isDark ? 'transparent' : '#f9f9f9'),
-            }}
-            onMouseEnter={(e) => {
-              if (expiredRenewals.length > 0) {
-                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.5)`;
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2';
-              } else {
-                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (expiredRenewals.length > 0) {
-                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.3)`;
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2';
-              } else {
-                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
-                e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
-              }
-            }}
-          >
-            <p style={{
-              fontSize: 'clamp(0.7rem, 2vw, 0.875rem)',
-              fontWeight: '500',
-              marginBottom: '6px',
-              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#666666'),
-              opacity: expiredRenewals.length > 0 ? 1 : 0.8,
-              margin: 0,
-            }}>
-              {expiredRenewals.length > 0 ? '⚠️ Action Needed' : 'Renewals'}
-            </p>
-            <p style={{
-              fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
-              fontWeight: 'bold',
-              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#000000'),
-              marginBottom: '4px',
-              lineHeight: '1.2',
-              margin: 0,
-            }}>
-              {expiredRenewals.length + upcomingRenewals.length}
-            </p>
-            {expiredRenewals.length > 0 && (
-              <p style={{
-                fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
-                marginTop: '4px',
-                color: '#ef4444',
+        {/* Stats Row - Minimal with Cost on Top */}
+        <div style={{
+          display: 'flex',
+          gap: '24px',
+          marginBottom: '40px',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          padding: '8px 0',
+        }}>
+          {/* Cost Section - Stacked Vertically */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {/* Toggle Buttons - Only Monthly and Yearly */}
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {(['monthly', 'yearly'] as const).map((cycle) => (
+                <button
+                  key={cycle}
+                  onClick={() => setSelectedCostCycle(cycle)}
+                  style={{
+                    padding: '4px 10px',
+                    borderRadius: '4px',
+                    border: selectedCostCycle === cycle
+                      ? `1px solid ${isDark ? '#60a5fa' : '#3b82f6'}`
+                      : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.2)' : '#d1d5db'}`,
+                    backgroundColor: selectedCostCycle === cycle
+                      ? isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff'
+                      : isDark ? 'transparent' : '#ffffff',
+                    color: isDark ? '#c9c2a6' : '#666666',
+                    fontSize: '0.7rem',
+                    fontWeight: selectedCostCycle === cycle ? '600' : '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedCostCycle !== cycle) {
+                      e.currentTarget.style.borderColor = isDark ? 'rgba(201, 194, 166, 0.4)' : '#9ca3af';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedCostCycle !== cycle) {
+                      e.currentTarget.style.borderColor = isDark ? 'rgba(201, 194, 166, 0.2)' : '#d1d5db';
+                    }
+                  }}
+                >
+                  {cycle === 'yearly' ? 'Yearly' : 'Monthly'}
+                </button>
+              ))}
+            </div>
+
+            {/* Total Cost Display */}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{
+                fontSize: '0.8rem',
                 fontWeight: '600',
-                margin: 0,
+                color: isDark ? '#c9c2a6' : '#666666',
               }}>
-                {expiredRenewals.length} expired
-              </p>
-            )}
-            <p style={{
-              fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
-              marginTop: expiredRenewals.length > 0 ? '2px' : '4px',
-              color: isDark ? '#c9c2a6' : '#999999',
-              opacity: 0.7,
-              margin: 0,
-            }}>
-              {expiredRenewals.length > 0 ? `${upcomingRenewals.length} upcoming` : 'Next 30 days'}
-            </p>
-            <div style={{
-              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-              opacity: 0.6,
-              marginTop: '8px',
-            }}>
-              {expiredRenewals.length > 0 ? '🔴' : '📅'}
+                Total Cost
+              </span>
+              <span style={{
+                fontSize: '1.3rem',
+                fontWeight: '700',
+                color: isDark ? '#c9c2a6' : '#000000',
+              }}>
+                ₹{selectedCycleCost}
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* Stats Grid - Mobile view (2 stats: Cost + Upcoming Renewals) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px', marginBottom: '40px' }} className="stats-mobile">
-          <CostStatsCard
-            totalMonthlyCost={totalMonthlyCost}
-            icon="💰"
-          />
+          {/* Divider */}
+          <div style={{
+            width: '1px',
+            height: '68px',
+            backgroundColor: isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb',
+          }} />
+
+          {/* Renewals Section - Clickable */}
           <div
             onClick={() => setShowUpcomingRenewals(true)}
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
               cursor: 'pointer',
+              padding: '6px 12px',
+              borderRadius: '6px',
               transition: 'all 0.2s',
-              borderRadius: '8px',
-              padding: 'clamp(12px, 4vw, 20px)',
-              border: expiredRenewals.length > 0 ? `1px solid rgba(239, 68, 68, 0.3)` : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
-              backgroundColor: expiredRenewals.length > 0 ? (isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2') : (isDark ? 'transparent' : '#f9f9f9'),
+              backgroundColor: expiredRenewals.length > 0
+                ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
+                : 'transparent',
+              border: expiredRenewals.length > 0
+                ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
             }}
             onMouseEnter={(e) => {
-              if (expiredRenewals.length > 0) {
-                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.5)`;
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2';
-              } else {
-                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
-              }
+              e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
+                ? isDark ? 'rgba(239, 68, 68, 0.15)' : '#fecaca'
+                : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9';
+              e.currentTarget.style.border = expiredRenewals.length > 0
+                ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`
+                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d1d5db'}`;
             }}
             onMouseLeave={(e) => {
-              if (expiredRenewals.length > 0) {
-                e.currentTarget.style.border = `1px solid rgba(239, 68, 68, 0.3)`;
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.05)' : '#fef2f2';
-              } else {
-                e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
-                e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
-              }
+              e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
+                ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
+                : 'transparent';
+              e.currentTarget.style.border = expiredRenewals.length > 0
+                ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
+                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`;
             }}
           >
-            <p style={{
-              fontSize: 'clamp(0.7rem, 2vw, 0.875rem)',
-              fontWeight: '500',
-              marginBottom: '6px',
+            <span style={{
+              fontSize: '0.95rem',
+              fontWeight: '600',
               color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#666666'),
-              opacity: expiredRenewals.length > 0 ? 1 : 0.8,
-              margin: 0,
             }}>
-              {expiredRenewals.length > 0 ? '⚠️ Action Needed' : 'Renewals'}
-            </p>
-            <p style={{
-              fontSize: 'clamp(1.25rem, 5vw, 1.875rem)',
-              fontWeight: 'bold',
+              {expiredRenewals.length > 0 ? '⚠️' : '📅'}
+            </span>
+            <span style={{
+              fontSize: '0.85rem',
+              color: isDark ? '#c9c2a6' : '#666666',
+            }}>
+              Renewals
+            </span>
+            <span style={{
+              fontSize: '1.3rem',
+              fontWeight: '700',
               color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#000000'),
-              marginBottom: '4px',
-              lineHeight: '1.2',
-              margin: 0,
+              minWidth: '28px',
+              textAlign: 'center',
             }}>
               {expiredRenewals.length + upcomingRenewals.length}
-            </p>
+            </span>
             {expiredRenewals.length > 0 && (
-              <p style={{
-                fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
-                marginTop: '4px',
+              <span style={{
+                fontSize: '0.7rem',
                 color: '#ef4444',
                 fontWeight: '600',
-                margin: 0,
               }}>
-                {expiredRenewals.length} expired
-              </p>
+                ({expiredRenewals.length} exp)
+              </span>
             )}
-            <p style={{
-              fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
-              marginTop: expiredRenewals.length > 0 ? '2px' : '4px',
-              color: isDark ? '#c9c2a6' : '#999999',
-              opacity: 0.7,
-              margin: 0,
-            }}>
-              {expiredRenewals.length > 0 ? `${upcomingRenewals.length} upcoming` : '30 days'}
-            </p>
-            <div style={{
-              fontSize: 'clamp(1.5rem, 4vw, 2rem)',
-              opacity: 0.6,
-              marginTop: '8px',
-            }}>
-              {expiredRenewals.length > 0 ? '🔴' : '📅'}
-            </div>
           </div>
         </div>
 
