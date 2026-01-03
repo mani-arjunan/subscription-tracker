@@ -88,8 +88,8 @@ export const ReminderService = {
       );
 
       if (daysUntilRenewal <= sub.reminderDaysBefore) {
-        const reminderKey = `reminded-${sub.id}-${renewalDate.toISOString().split('T')[0]}`;
-        if (!localStorage.getItem(reminderKey)) {
+        // const reminderKey = `reminded-${sub.id}-${new Date().getTime()}`
+        // if (!localStorage.getItem(reminderKey)) {
           ReminderService.sendNotification(
             `${sub.name} subscription renews soon`,
             {
@@ -99,8 +99,8 @@ export const ReminderService = {
               tag: `reminder-${sub.id}`,
             }
           );
-          localStorage.setItem(reminderKey, 'true');
-        }
+          // localStorage.setItem(reminderKey, 'true');
+        // }
       }
     });
   },

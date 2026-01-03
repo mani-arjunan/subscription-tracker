@@ -34,7 +34,7 @@ async function checkSubscriptionsAndNotify() {
     const notificationsSent = [];
 
     // Get previously sent reminders from cache
-    const sentReminders = await getSentReminders();
+    // const sentReminders = await getSentReminders();
 
     subscriptions.forEach((sub) => {
       if (sub.status !== 'active') return;
@@ -48,10 +48,10 @@ async function checkSubscriptionsAndNotify() {
 
       // Send notification if it's the reminder day and we haven't already sent it
       if (daysUntilRenewal === (sub.reminderDaysBefore || 3)) {
-        const reminderKey = `reminded-${sub.id}-${sub.renewalDate}`;
-
-        // Check if we already sent this reminder
-        if (!sentReminders.includes(reminderKey)) {
+        // const reminderKey = `reminded-${sub.id}-${sub.renewalDate}`;
+        //
+        // // Check if we already sent this reminder
+        // if (!sentReminders.includes(reminderKey)) {
           self.registration.showNotification(
             `${sub.name} subscription renews soon`,
             {
@@ -65,20 +65,20 @@ async function checkSubscriptionsAndNotify() {
               },
             }
           );
-          notificationsSent.push(reminderKey);
-        }
+        //   notificationsSent.push(reminderKey);
+        // }
       }
     });
 
     // Save that we sent these notifications
-    if (notificationsSent.length > 0) {
-      const updatedReminders = [...sentReminders, ...notificationsSent];
-      const cache = await caches.open(CACHE_NAME);
-      await cache.put(
-        new Request('notification-cache'),
-        new Response(JSON.stringify({ sent: updatedReminders, timestamp: Date.now() }))
-      );
-    }
+    // if (notificationsSent.length > 0) {
+    //   const updatedReminders = [...sentReminders, ...notificationsSent];
+    //   const cache = await caches.open(CACHE_NAME);
+    //   await cache.put(
+    //     new Request('notification-cache'),
+    //     new Response(JSON.stringify({ sent: updatedReminders, timestamp: Date.now() }))
+    //   );
+    // }
 
     console.log(`[SW] Checked subscriptions, sent ${notificationsSent.length} notifications`);
   } catch (error) {
@@ -104,20 +104,20 @@ async function getSubscriptionsFromDB() {
 }
 
 // Get previously sent reminders from cache
-async function getSentReminders() {
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    const response = await cache.match('notification-cache');
-    if (response) {
-      const data = await response.json();
-      return data.sent || [];
-    }
-    return [];
-  } catch (error) {
-    console.error('[SW] Error getting sent reminders:', error);
-    return [];
-  }
-}
+// async function getSentReminders() {
+//   try {
+//     const cache = await caches.open(CACHE_NAME);
+//     const response = await cache.match('notification-cache');
+//     if (response) {
+//       const data = await response.json();
+//       return data.sent || [];
+//     }
+//     return [];
+//   } catch (error) {
+//     console.error('[SW] Error getting sent reminders:', error);
+//     return [];
+//   }
+// }
 
 // Message handler for updating subscriptions from main thread
 self.addEventListener('message', (event) => {
