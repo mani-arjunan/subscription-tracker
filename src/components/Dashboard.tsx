@@ -99,15 +99,25 @@ export const Dashboard: React.FC = () => {
   const textColor = isDark ? '#c9c2a6' : '#000000';
 
   useEffect(() => {
-    store.loadFromStorage();
-    checkNotificationPermission();
-    startReminderCheck();
+    const initializeApp = async () => {
+      store.loadFromStorage();
+      checkNotificationPermission();
 
-    // Perform auto-backup if needed
-    if (BackupService.shouldAutoBackup()) {
-      BackupService.recordBackup();
-    }
+      // Perform auto-backup if needed
+      if (BackupService.shouldAutoBackup()) {
+        BackupService.recordBackup();
+      }
+    };
+
+    initializeApp();
   }, []);
+
+  useEffect(() => {
+    // Check reminders whenever subscriptions change
+    if (store.subscriptions.length > 0) {
+      ReminderService.checkAndNotifyReminders(store.subscriptions);
+    }
+  }, [store.subscriptions]);
 
   useEffect(() => {
     // Sync subscriptions to service worker for background checks
@@ -122,10 +132,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const startReminderCheck = () => {
-    ReminderService.checkAndNotifyReminders(store.subscriptions);
-  };
-
+  console.log("OUTSIDE", store)
   const handleEnableNotifications = async () => {
     if (notificationPermission) {
       // Turn off notifications - just update local state
