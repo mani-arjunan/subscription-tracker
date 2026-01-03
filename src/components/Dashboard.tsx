@@ -94,7 +94,7 @@ export const Dashboard: React.FC = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showUpcomingRenewals, setShowUpcomingRenewals] = useState(false);
   const [showBackupSettings, setShowBackupSettings] = useState(false);
-  const [selectedCostCycle, setSelectedCostCycle] = useState<'monthly' | 'quarterly' | 'bi-annual' | 'yearly'>('monthly');
+  const [selectedCostCycle, setSelectedCostCycle] = useState<'monthly' | 'quarterly' | 'bi-annual' | 'yearly'>('yearly');
 
   const isDark = theme === 'dark';
   const bgColor = isDark ? '#0f1115' : '#ffffff';
@@ -694,14 +694,20 @@ export const Dashboard: React.FC = () => {
               }}>
                 Total Cost
               </span>
-              <span style={{
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: isDark ? '#c9c2a6' : '#000000',
-                lineHeight: '1.2',
-              }}>
-                ₹{selectedCycleCost}
-              </span>
+              <div style={{ fontSize: '2rem', lineHeight: '1.2' }}>
+                <span style={{
+                  fontWeight: '400',
+                  color: isDark ? '#c9c2a6' : '#000000',
+                }}>
+                  ₹
+                </span>
+                <span style={{
+                  fontWeight: '700',
+                  color: isDark ? '#c9c2a6' : '#000000',
+                }}>
+                  {selectedCycleCost}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -782,44 +788,27 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Category Filter - Desktop view (buttons) */}
-        <div style={{ marginBottom: '40px' }} className="filter-buttons">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
-            <span style={{
-              fontSize: '0.8rem',
-              fontWeight: '600',
-              backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
-              color: isDark ? '#60a5fa' : '#2563eb',
-              padding: '4px 12px',
-              borderRadius: '9999px',
-              border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`,
-            }}>
-              {activeCount} active
-            </span>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            <button
-              onClick={() => setSelectedCategory('all')}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: '500',
-                fontSize: '0.85rem',
-                backgroundColor: selectedCategory === 'all' ? textColor : 'transparent',
-                color: selectedCategory === 'all' ? bgColor : textColor,
-                opacity: selectedCategory === 'all' ? 1 : 0.7,
-                transition: 'all 0.2s',
-              }}
-            >
-              All
-            </button>
-            {CATEGORIES.map((category) => (
+        {/* Filter & Sort Controls - Combined Row */}
+        <div style={{ marginBottom: '40px', display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {/* Category Filter - Desktop view (buttons) */}
+          <div style={{ flex: 1, minWidth: '300px' }} className="filter-buttons">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
+              <span style={{
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
+                color: isDark ? '#60a5fa' : '#2563eb',
+                padding: '4px 12px',
+                borderRadius: '9999px',
+                border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`,
+              }}>
+                {activeCount} active
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
+                onClick={() => setSelectedCategory('all')}
                 style={{
                   padding: '6px 12px',
                   borderRadius: '6px',
@@ -827,76 +816,96 @@ export const Dashboard: React.FC = () => {
                   cursor: 'pointer',
                   fontWeight: '500',
                   fontSize: '0.85rem',
-                  backgroundColor: selectedCategory === category ? textColor : 'transparent',
-                  color: selectedCategory === category ? bgColor : textColor,
-                  opacity: selectedCategory === category ? 1 : 0.7,
+                  backgroundColor: selectedCategory === 'all' ? textColor : 'transparent',
+                  color: selectedCategory === 'all' ? bgColor : textColor,
+                  opacity: selectedCategory === 'all' ? 1 : 0.7,
                   transition: 'all 0.2s',
                 }}
               >
-                {categoryIcons[category]} {category.charAt(0).toUpperCase() + category.slice(1)}
+                All
               </button>
-            ))}
+              {CATEGORIES.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    fontSize: '0.85rem',
+                    backgroundColor: selectedCategory === category ? textColor : 'transparent',
+                    color: selectedCategory === category ? bgColor : textColor,
+                    opacity: selectedCategory === category ? 1 : 0.7,
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {categoryIcons[category]} {category.charAt(0).toUpperCase() + category.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Category Filter - Mobile view (dropdown) */}
-        <div style={{ marginBottom: '40px' }} className="filter-dropdown">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
-            <span style={{
-              fontSize: '0.8rem',
-              fontWeight: '600',
-              backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
-              color: isDark ? '#60a5fa' : '#2563eb',
-              padding: '4px 12px',
-              borderRadius: '9999px',
-              border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`,
-            }}>
-              {activeCount} active
-            </span>
+          {/* Category Filter - Mobile view (dropdown) */}
+          <div style={{ flex: 1, minWidth: '300px' }} className="filter-dropdown">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
+              <span style={{
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
+                color: isDark ? '#60a5fa' : '#2563eb',
+                padding: '4px 12px',
+                borderRadius: '9999px',
+                border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#bfdbfe'}`,
+              }}>
+                {activeCount} active
+              </span>
+            </div>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value as Category | 'all')}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`,
+                backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
+                color: textColor,
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${encodeURIComponent(textColor)}' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 10px center',
+                paddingRight: '32px',
+              }}
+            >
+              <option value="all">All Categories</option>
+              {CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {categoryIcons[category]} {category.charAt(0).toUpperCase() + category.slice(1)}
+                </option>
+              ))}
+            </select>
           </div>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as Category | 'all')}
-            style={{
-              width: '100%',
-              padding: '10px 12px',
-              borderRadius: '6px',
-              border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`,
-              backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
-              color: textColor,
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              cursor: 'pointer',
-              appearance: 'none',
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${encodeURIComponent(textColor)}' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'right 10px center',
-              paddingRight: '32px',
-            }}
-          >
-            <option value="all">All Categories</option>
-            {CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {categoryIcons[category]} {category.charAt(0).toUpperCase() + category.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
 
-        {/* Sort Controls */}
-        <div style={{ marginBottom: '40px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Sort by</h3>
+          {/* Sort Controls */}
+          <div style={{ flex: 1, minWidth: '250px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Sort by</h3>
+            </div>
+            <SortDropdown
+              sortBy={store.sortBy}
+              sortDirection={store.sortDirection}
+              onSortChange={(field) => store.setSortBy(field)}
+              onDirectionChange={(direction) => store.setSortDirection(direction)}
+              isDark={isDark}
+              textColor={textColor}
+            />
           </div>
-          <SortDropdown
-            sortBy={store.sortBy}
-            sortDirection={store.sortDirection}
-            onSortChange={(field) => store.setSortBy(field)}
-            onDirectionChange={(direction) => store.setSortDirection(direction)}
-            isDark={isDark}
-            textColor={textColor}
-          />
         </div>
 
         {/* Add Button - Desktop/Tablet view */}
