@@ -299,7 +299,9 @@ export const Dashboard: React.FC = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', gap: '16px', flexWrap: 'wrap' }}>
           <div style={{ minWidth: '200px' }}>
             <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2.25rem)', fontWeight: 'bold', marginBottom: '8px' }}>Subscription Tracker</h1>
-            <p style={{ opacity: 0.7, fontSize: 'clamp(0.875rem, 3vw, 1rem)' }}>Manage and track all your subscriptions</p>
+            <p style={{ opacity: 0.7, fontSize: 'clamp(0.875rem, 3vw, 1rem)' }}>
+              Manage and track all your subscriptions
+            </p>
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' }}>
             <button
