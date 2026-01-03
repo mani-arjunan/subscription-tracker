@@ -106,6 +106,24 @@ body {
   }
 }
 
+/* Stats Row - Stack on iPad Air/Pro (1024px+) */
+.stats-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 32px !important;
+}
+
+@media (min-width: 1024px) {
+  .stats-row {
+    flex-wrap: wrap !important;
+  }
+
+  .stats-row > div {
+    flex: 1 1 calc(50% - 16px) !important;
+    max-width: calc(50% - 16px) !important;
+  }
+}
+
 /* Filter UI - dropdown for both desktop and mobile */
 .filter-buttons {
   display: block !important;

@@ -626,7 +626,7 @@ export const Dashboard: React.FC = () => {
         )}
 
         {/* Stats Row - Full Width with Cost and Renewals Side by Side */}
-        <div style={{
+        <div className="stats-row" style={{
           display: 'flex',
           gap: '32px',
           marginBottom: '40px',
