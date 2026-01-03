@@ -55,7 +55,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         <button
           onClick={() => onDirectionChange(sortDirection === 'asc' ? 'desc' : 'asc')}
           style={{
-            padding: '2px 4px',
+            padding: '4px 6px',
             borderRadius: '4px',
             border: 'none',
             backgroundColor: 'transparent',
@@ -65,7 +65,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.2s',
-            fontSize: '0.7rem',
+            fontSize: '0.75rem',
             fontWeight: '500',
             opacity: 0.5,
           }}
