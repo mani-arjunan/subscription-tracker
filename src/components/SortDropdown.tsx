@@ -31,7 +31,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{
@@ -55,23 +55,29 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         <button
           onClick={() => onDirectionChange(sortDirection === 'asc' ? 'desc' : 'asc')}
           style={{
-            padding: '10px 12px',
-            borderRadius: '6px',
-            border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`,
-            backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
+            padding: '4px 6px',
+            borderRadius: '4px',
+            border: 'none',
+            backgroundColor: 'transparent',
             color: textColor,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.2s',
-            minWidth: '60px',
             fontSize: '0.8rem',
             fontWeight: '500',
+            opacity: 0.5,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.5';
           }}
           title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
         >
-          {sortDirection === 'asc' ? 'Asc' : 'Desc'}
+          {sortDirection === 'asc' ? '↑' : '↓'}
         </button>
       </div>
 
