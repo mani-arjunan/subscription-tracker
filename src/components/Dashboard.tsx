@@ -848,7 +848,7 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Category Filter - Mobile view (dropdown) */}
-          <div style={{ flex: 1, minWidth: '300px' }} className="filter-dropdown">
+          <div style={{ flex: 1, minWidth: '150px' }} className="filter-dropdown">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
               <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
               <span style={{
@@ -893,7 +893,7 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Sort Controls */}
-          <div style={{ flex: 1, minWidth: '250px' }}>
+          <div style={{ flex: 1, minWidth: '120px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
               <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Sort by</h3>
             </div>

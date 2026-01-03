@@ -122,11 +122,7 @@ body {
 
   .filter-dropdown {
     display: block !important;
-  }
-
-  /* Keep filter and sort on same line on mobile */
-  .filter-dropdown {
     flex: 1 !important;
-    min-width: 200px !important;
+    min-width: 150px !important;
   }
 }
