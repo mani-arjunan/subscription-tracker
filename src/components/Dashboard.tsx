@@ -639,7 +639,7 @@ export const Dashboard: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: '16px',
-            flex: 0,
+            flex: 1,
             padding: '0',
             backgroundColor: 'transparent',
             justifyContent: 'flex-start',
