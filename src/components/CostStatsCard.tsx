@@ -61,12 +61,12 @@ export const CostStatsCard: React.FC<CostStatsCardProps> = ({
               key={cycle}
               onClick={() => setSelectedCycle(cycle)}
               style={{
-                padding: 'clamp(3px, 0.5vw, 6px) clamp(6px, 1vw, 10px)',
+                padding: 'clamp(6px, 1vw, 12px) clamp(12px, 2vw, 18px)',
                 borderRadius: '4px',
                 border: 'none',
                 backgroundColor: selectedCycle === cycle ? buttonBgActive : buttonBgInactive,
                 color: valueColor,
-                fontSize: 'clamp(0.6rem, 1.5vw, 0.75rem)',
+                fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)',
                 fontWeight: selectedCycle === cycle ? '600' : '500',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
