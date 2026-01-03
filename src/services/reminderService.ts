@@ -100,9 +100,9 @@ export const ReminderService = {
       } else if (daysUntilRenewal > 0 && daysUntilRenewal <= sub.reminderDaysBefore) {
         // Upcoming renewal within reminder window
         ReminderService.sendNotification(
-          `${sub.name} subscription renews soon`,
+          `Renew ${sub.name}`,
           {
-            body: `Your ${sub.name} subscription will renew in ${daysUntilRenewal} days (${renewalDate.toLocaleDateString()})`,
+            body: `Your ${sub.name} subscription is expiring on (${renewalDate.toLocaleDateString()}). Please renew it`,
             tag: `reminder-${sub.id}`,
           }
         );
