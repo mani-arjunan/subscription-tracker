@@ -4,6 +4,7 @@ import type { Subscription, Category } from '../types/subscription';
 import { SubscriptionCard } from './SubscriptionCard';
 import { SubscriptionForm } from './SubscriptionForm';
 import { CostStatsCard } from './CostStatsCard';
+import { SortDropdown } from './SortDropdown';
 import { InstallPrompt } from './InstallPrompt';
 import { ReminderService } from '../services/reminderService';
 import { BackupService } from '../services/backupService';
@@ -256,10 +257,11 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const filteredSubscriptions =
+  const filteredSubscriptions = store.getSorted(
     selectedCategory === 'all'
       ? store.subscriptions
-      : store.getSubscriptionsByCategory(selectedCategory);
+      : store.getSubscriptionsByCategory(selectedCategory)
+  );
 
   // Calculate stats based on filtered subscriptions
   const activeCount = filteredSubscriptions.filter((sub) => sub.status === 'active').length;
@@ -826,6 +828,21 @@ export const Dashboard: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Sort Controls */}
+        <div style={{ marginBottom: '40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Sort by</h3>
+          </div>
+          <SortDropdown
+            sortBy={store.sortBy}
+            sortDirection={store.sortDirection}
+            onSortChange={(field) => store.setSortBy(field)}
+            onDirectionChange={(direction) => store.setSortDirection(direction)}
+            isDark={isDark}
+            textColor={textColor}
+          />
         </div>
 
         {/* Add Button - Desktop/Tablet view */}

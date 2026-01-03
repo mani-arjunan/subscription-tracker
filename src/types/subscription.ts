@@ -1,5 +1,7 @@
 export type Category = 'streaming' | 'music' | 'productivity' | 'gaming' | 'education' | 'other';
 export type Status = 'active' | 'paused' | 'cancelled';
+export type SortField = 'yearlyTotal' | 'renewalDate' | 'name' | 'status';
+export type SortDirection = 'asc' | 'desc';
 
 export interface Subscription {
   id: string;
