@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { Subscription, Category } from '../types/subscription';
+import type { Subscription, Category, SortField, SortDirection } from '../types/subscription';
+import { isExpired } from '../utils/subscriptionUtils';
 
 const STORAGE_KEY = 'subscriptions';
 
@@ -7,6 +8,8 @@ interface SubscriptionStore {
   subscriptions: Subscription[];
   currency: string;
   reminderDaysDefault: number;
+  sortBy: SortField;
+  sortDirection: SortDirection;
 
   // Subscriptions
   addSubscription: (sub: Omit<Subscription, 'id' | 'createdAt'>) => void;
@@ -14,10 +17,11 @@ interface SubscriptionStore {
   deleteSubscription: (id: string) => void;
   getSubscription: (id: string) => Subscription | undefined;
 
-  // Filtering
+  // Filtering & Sorting
   getActiveSubscriptions: () => Subscription[];
   getSubscriptionsByCategory: (category: Category) => Subscription[];
   getUpcomingRenewals: (daysFromNow: number) => Subscription[];
+  getSorted: (subscriptions: Subscription[]) => Subscription[];
 
   // Calculations
   getTotalMonthlyCost: () => number;
@@ -26,6 +30,8 @@ interface SubscriptionStore {
   // Settings
   setCurrency: (currency: string) => void;
   setReminderDaysDefault: (days: number) => void;
+  setSortBy: (field: SortField) => void;
+  setSortDirection: (direction: SortDirection) => void;
 
   // Data
   loadFromStorage: () => void;
@@ -37,6 +43,8 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
   subscriptions: [],
   currency: 'USD',
   reminderDaysDefault: 7,
+  sortBy: 'status',
+  sortDirection: 'asc',
 
   addSubscription: (sub) => {
     const newSub: Subscription = {
@@ -125,6 +133,52 @@ export const useSubscriptionStore = create<SubscriptionStore>((set, get) => ({
       });
 
     return costs;
+  },
+
+  getSorted: (subscriptions) => {
+    const { sortBy, sortDirection } = get();
+    const sorted = [...subscriptions];
+
+    sorted.sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case 'yearlyTotal': {
+          const yearlyA = a.cost * (a.billingCycle === 'monthly' ? 12 : a.billingCycle === 'quarterly' ? 4 : a.billingCycle === 'bi-annual' ? 2 : 1);
+          const yearlyB = b.cost * (b.billingCycle === 'monthly' ? 12 : b.billingCycle === 'quarterly' ? 4 : b.billingCycle === 'bi-annual' ? 2 : 1);
+          comparison = yearlyA - yearlyB;
+          break;
+        }
+        case 'renewalDate': {
+          comparison = new Date(a.renewalDate).getTime() - new Date(b.renewalDate).getTime();
+          break;
+        }
+        case 'name': {
+          comparison = a.name.localeCompare(b.name);
+          break;
+        }
+        case 'status': {
+          const statusOrder = { active: 0, paused: 1, cancelled: 2, expired: 3 };
+          // Use display status (expired takes precedence over active)
+          const displayStatusA = isExpired(a) && a.status === 'active' ? 'expired' : a.status;
+          const displayStatusB = isExpired(b) && b.status === 'active' ? 'expired' : b.status;
+          comparison = statusOrder[displayStatusA] - statusOrder[displayStatusB];
+          break;
+        }
+      }
+
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return sorted;
+  },
+
+  setSortBy: (field) => {
+    set({ sortBy: field });
+  },
+
+  setSortDirection: (direction) => {
+    set({ sortDirection: direction });
   },
 
   setCurrency: (currency) => {

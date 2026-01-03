@@ -8,12 +8,18 @@ export const ReminderService = {
     }
 
     if (Notification.permission === 'granted') {
+      // Register periodic background sync if supported
+      ReminderService.registerPeriodicSync();
       return true;
     }
 
     if (Notification.permission !== 'denied') {
       try {
         const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          // Register periodic background sync if supported
+          ReminderService.registerPeriodicSync();
+        }
         return permission === 'granted';
       } catch (error) {
         console.error('Failed to request notification permission:', error);
@@ -22,6 +28,35 @@ export const ReminderService = {
     }
 
     return false;
+  },
+
+  registerPeriodicSync: async () => {
+    if (!('serviceWorker' in navigator) || !('BackgroundSyncManager' in window)) {
+      console.log('Periodic background sync not supported');
+      return;
+    }
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      if ('periodicSync' in registration) {
+        await (registration.periodicSync as any).register('check-subscriptions', {
+          minInterval: 24 * 60 * 60 * 1000, // 24 hours
+        });
+        console.log('Periodic sync registered');
+      }
+    } catch (error) {
+      console.error('Failed to register periodic sync:', error);
+    }
+  },
+
+  syncSubscriptionsToWorker: (subscriptions: Subscription[]) => {
+    // Send subscription data to service worker for background checks
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SYNC_SUBSCRIPTIONS',
+        subscriptions,
+      });
+    }
   },
 
   sendNotification: (title: string, options?: NotificationOptions) => {
@@ -52,21 +87,27 @@ export const ReminderService = {
         (renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      if (daysUntilRenewal === sub.reminderDaysBefore) {
-        const reminderKey = `reminded-${sub.id}-${sub.renewalDate}`;
-        if (!sessionStorage.getItem(reminderKey)) {
-          ReminderService.sendNotification(
-            `${sub.name} subscription renews soon`,
-            {
-              body: `Your ${sub.name} subscription will renew in ${daysUntilRenewal} days (${new Date(
-                sub.renewalDate
-              ).toLocaleDateString()})`,
-              tag: `reminder-${sub.id}`,
-            }
-          );
-          sessionStorage.setItem(reminderKey, 'true');
-        }
+      // Only notify for upcoming renewals (positive days) or if expired today
+      if (daysUntilRenewal === 0) {
+        // Expired today
+        ReminderService.sendNotification(
+          `${sub.name} subscription expired today`,
+          {
+            body: `Your ${sub.name} subscription expired on ${renewalDate.toLocaleDateString()}. Please renew it.`,
+            tag: `reminder-${sub.id}`,
+          }
+        );
+      } else if (daysUntilRenewal > 0 && daysUntilRenewal <= sub.reminderDaysBefore) {
+        // Upcoming renewal within reminder window
+        ReminderService.sendNotification(
+          `Renew ${sub.name}`,
+          {
+            body: `Your ${sub.name} subscription is expiring on (${renewalDate.toLocaleDateString()}). Please renew it`,
+            tag: `reminder-${sub.id}`,
+          }
+        );
       }
+      // Do NOT notify for negative days (already expired) to avoid spam
     });
   },
 
