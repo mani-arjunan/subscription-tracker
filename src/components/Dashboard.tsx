@@ -836,37 +836,6 @@ export const Dashboard: React.FC = () => {
             </select>
           </div>
 
-          {/* Category Filter - Mobile view (dropdown) */}
-          <div style={{ flex: 1, minWidth: '150px' }} className="filter-dropdown">
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value as Category | 'all')}
-              style={{
-                width: '100%',
-                padding: '10px 12px',
-                borderRadius: '6px',
-                border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`,
-                backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
-                color: textColor,
-                fontSize: '0.9rem',
-                fontWeight: '500',
-                cursor: 'pointer',
-                appearance: 'none',
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${encodeURIComponent(textColor)}' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 10px center',
-                paddingRight: '32px',
-              }}
-            >
-              <option value="all">All Categories</option>
-              {CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {categoryIcons[category]} {category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Sort Controls */}
           <div style={{ flex: 1, minWidth: '120px' }}>
             <SortDropdown
