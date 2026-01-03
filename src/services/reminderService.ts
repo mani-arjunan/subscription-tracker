@@ -8,12 +8,18 @@ export const ReminderService = {
     }
 
     if (Notification.permission === 'granted') {
+      // Register periodic background sync if supported
+      ReminderService.registerPeriodicSync();
       return true;
     }
 
     if (Notification.permission !== 'denied') {
       try {
         const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          // Register periodic background sync if supported
+          ReminderService.registerPeriodicSync();
+        }
         return permission === 'granted';
       } catch (error) {
         console.error('Failed to request notification permission:', error);
@@ -22,6 +28,35 @@ export const ReminderService = {
     }
 
     return false;
+  },
+
+  registerPeriodicSync: async () => {
+    if (!('serviceWorker' in navigator) || !('BackgroundSyncManager' in window)) {
+      console.log('Periodic background sync not supported');
+      return;
+    }
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      if ('periodicSync' in registration) {
+        await (registration.periodicSync as any).register('check-subscriptions', {
+          minInterval: 24 * 60 * 60 * 1000, // 24 hours
+        });
+        console.log('Periodic sync registered');
+      }
+    } catch (error) {
+      console.error('Failed to register periodic sync:', error);
+    }
+  },
+
+  syncSubscriptionsToWorker: (subscriptions: Subscription[]) => {
+    // Send subscription data to service worker for background checks
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SYNC_SUBSCRIPTIONS',
+        subscriptions,
+      });
+    }
   },
 
   sendNotification: (title: string, options?: NotificationOptions) => {

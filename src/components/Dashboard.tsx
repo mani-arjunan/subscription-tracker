@@ -110,18 +110,8 @@ export const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      ReminderService.sendNotification(
-        `subscription renews soon`,
-        {
-          body: `Your`,
-          tag: `reminder`
-        }
-      );
-      // ReminderService.checkAndNotifyReminders(store.subscriptions);
-    }, 1000); // 24 hours
-
-    return () => clearInterval(interval);
+    // Sync subscriptions to service worker for background checks
+    ReminderService.syncSubscriptionsToWorker(store.subscriptions);
   }, [store.subscriptions]);
 
   const checkNotificationPermission = async () => {
