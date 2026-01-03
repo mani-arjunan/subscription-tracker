@@ -625,35 +625,17 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Stats Row - Full Width with Cost on Top */}
-        <div style={{
-          display: 'flex',
-          gap: '32px',
-          marginBottom: '40px',
-          alignItems: 'stretch',
-          padding: '0',
-          width: '100%',
-        }}>
-          {/* Cost Section - Stacked Vertically, Flex Grow */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            flex: 1,
-            padding: '20px',
-            borderRadius: '8px',
-            backgroundColor: 'transparent',
-            justifyContent: 'space-between',
-            transition: 'all 0.2s',
-          }}>
+        {/* Stats Row - Full Width */}
+        <div style={{ marginBottom: '40px' }}>
+          {/* Total Cost Section with Toggle - At Top Left */}
+          <div style={{ marginBottom: '20px' }}>
             {/* Toggle Buttons - Only Monthly and Yearly */}
-            <div style={{ display: 'flex', gap: '6px' }}>
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
               {(['monthly', 'yearly'] as const).map((cycle) => (
                 <button
                   key={cycle}
                   onClick={() => setSelectedCostCycle(cycle)}
                   style={{
-                    flex: 1,
                     padding: '6px 12px',
                     borderRadius: '4px',
                     border: selectedCostCycle === cycle
@@ -711,14 +693,15 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Renewals Section - Stacked Vertically to Match Cost */}
+          {/* Renewals Section - Stacked Vertically */}
           <div
             onClick={() => setShowUpcomingRenewals(true)}
             style={{
               display: 'flex',
               flexDirection: 'column',
               gap: '16px',
-              flex: 1,
+              width: '100%',
+              maxWidth: '400px',
               cursor: 'pointer',
               padding: '20px',
               borderRadius: '8px',
