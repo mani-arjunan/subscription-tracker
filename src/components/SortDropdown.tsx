@@ -32,7 +32,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
 
   return (
     <div style={{ position: 'relative', display: 'inline-block' }}>
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch' }}>
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{
@@ -66,6 +66,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.2s',
+            minWidth: '42px',
           }}
           title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
         >
