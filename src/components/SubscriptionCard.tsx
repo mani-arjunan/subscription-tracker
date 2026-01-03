@@ -413,14 +413,14 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: `1px solid ${borderColor}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
             <div>
-              <span style={{ fontSize: '0.45rem', color: secondaryTextColor, opacity: 0.6, fontWeight: '500', letterSpacing: '0.5px' }}>Billing Plan</span>
+              <span style={{ fontSize: '0.25rem', color: secondaryTextColor, opacity: 0.6, fontWeight: '500', letterSpacing: '0.5px' }}>Billing Plan</span>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '6px' }}>
                 <p style={{ fontSize: '1.2rem', fontWeight: '700', color: textColor, margin: 0 }}>₹{subscription.cost.toFixed(0)}</p>
                 <span style={{ fontSize: '0.8rem', color: secondaryTextColor, opacity: 0.7, fontWeight: '500', textTransform: 'capitalize' }}>/{subscription.billingCycle}</span>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <span style={{ fontSize: '0.45rem', color: secondaryTextColor, opacity: 0.6, fontWeight: '500', letterSpacing: '0.5px' }}>Yearly Cost</span>
+              <span style={{ fontSize: '0.25rem', color: secondaryTextColor, opacity: 0.6, fontWeight: '500', letterSpacing: '0.5px' }}>Yearly Cost</span>
               <p style={{ fontSize: '1.2rem', fontWeight: '700', color: textColor, margin: '6px 0 0 0' }}>₹{yearlyAmount}</p>
             </div>
           </div>
@@ -428,7 +428,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
 
         {/* Row 3: Next Renewal */}
         <div style={{ marginBottom: '28px' }}>
-          <span style={{ color: secondaryTextColor, opacity: 0.6, fontSize: '0.45rem', fontWeight: '600', letterSpacing: '0.5px' }}>Next Renewal</span>
+          <span style={{ color: secondaryTextColor, opacity: 0.6, fontSize: '0.25rem', fontWeight: '600', letterSpacing: '0.5px' }}>Next Renewals</span>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
             <p style={{ fontWeight: '600', color: textColor, fontSize: '1.1rem', margin: 0 }}>
               {renewalDate.toLocaleDateString()}
