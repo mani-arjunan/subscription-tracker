@@ -175,15 +175,13 @@ export const Dashboard: React.FC = () => {
 
   const handleDeleteSubscription = (id: string) => {
     const subscription = store.subscriptions.find(s => s.id === id);
-    if (confirm('Are you sure you want to delete this subscription?')) {
-      store.deleteSubscription(id);
-      if (notificationPermission && 'Notification' in window && subscription) {
-        new Notification('Subscription Deleted', {
-          body: `${subscription.name} has been removed from your subscriptions`,
-          icon: '/favicon.svg',
-          tag: 'subscription-delete',
-        });
-      }
+    store.deleteSubscription(id);
+    if (notificationPermission && 'Notification' in window && subscription) {
+      new Notification('Subscription Deleted', {
+        body: `${subscription.name} has been removed from your subscriptions`,
+        icon: '/favicon.svg',
+        tag: 'subscription-delete',
+      });
     }
   };
 
@@ -346,17 +344,16 @@ export const Dashboard: React.FC = () => {
                 justifyContent: 'center',
                 padding: '8px',
                 borderRadius: '6px',
-                border: 'none',
-                backgroundColor: isDark ? 'rgba(251, 146, 60, 0.15)' : 'rgba(59, 130, 246, 0.15)',
+                backgroundColor: 'transparent',
                 cursor: 'pointer',
                 color: isDark ? '#fb923c' : '#3b82f6',
                 transition: 'all 0.2s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(251, 146, 60, 0.25)' : 'rgba(59, 130, 246, 0.25)';
+                e.currentTarget.style.opacity = '0.7';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(251, 146, 60, 0.15)' : 'rgba(59, 130, 246, 0.15)';
+                e.currentTarget.style.opacity = '1';
               }}
               title={isDark ? 'Light mode' : 'Dark mode'}
             >
@@ -370,17 +367,16 @@ export const Dashboard: React.FC = () => {
                 justifyContent: 'center',
                 padding: '8px',
                 borderRadius: '6px',
-                border: 'none',
-                backgroundColor: showSettings ? (isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)') : (isDark ? 'rgba(201, 194, 166, 0.1)' : 'rgba(229, 231, 235, 0.5)'),
+                backgroundColor: 'transparent',
                 cursor: 'pointer',
                 color: showSettings ? (isDark ? '#60a5fa' : '#3b82f6') : textColor,
                 transition: 'all 0.2s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.15)' : 'rgba(229, 231, 235, 0.7)';
+                e.currentTarget.style.opacity = '0.7';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = showSettings ? (isDark ? 'rgba(59, 130, 246, 0.3)' : 'rgba(59, 130, 246, 0.2)') : (isDark ? 'rgba(201, 194, 166, 0.1)' : 'rgba(229, 231, 235, 0.5)');
+                e.currentTarget.style.opacity = '1';
               }}
               title="Settings"
             >
@@ -873,17 +869,16 @@ export const Dashboard: React.FC = () => {
           }}
           style={{
             position: 'fixed',
-            bottom: '32px',
-            right: '32px',
+            bottom: '24px',
+            right: '24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '56px',
-            height: '56px',
+            width: '64px',
+            height: '64px',
             padding: '0',
             backgroundColor: isDark ? 'rgba(201, 194, 166, 0.15)' : '#f0f0f0',
             color: isDark ? '#c9c2a6' : '#000000',
-            border: isDark ? '1px solid rgba(201, 194, 166, 0.3)' : '1px solid #d0d0d0',
             borderRadius: '50%',
             cursor: 'pointer',
             fontSize: '1.5rem',
@@ -900,7 +895,7 @@ export const Dashboard: React.FC = () => {
           }}
           className="mobile-button"
         >
-          <Plus size={28} />
+          <Plus size={32} />
         </button>
 
         {/* Subscriptions Grid */}

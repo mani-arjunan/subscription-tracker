@@ -135,7 +135,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>{categoryIcons[subscription.category]}</span>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>{subscription.name}</h3>
             </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0, paddingLeft: '20pt' }}>
               <span style={{
                 padding: '4px 12px',
                 borderRadius: '9999px',
@@ -350,7 +350,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             <span style={{ fontSize: '1.75rem', flexShrink: 0, lineHeight: 1 }}>{categoryIcons[subscription.category]}</span>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', margin: 0, lineHeight: 1.2 }}>{subscription.name}</h3>
           </div>
-          <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center', paddingLeft: '20pt' }}>
             <span style={{
               padding: '3px 10px',
               borderRadius: '9999px',
