@@ -36,12 +36,12 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         <button
           onClick={() => setIsOpen(!isOpen)}
           style={{
-            padding: '8px 12px',
+            padding: '10px 12px',
             borderRadius: '6px',
             border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`,
             backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
             color: textColor,
-            fontSize: '0.85rem',
+            fontSize: '0.9rem',
             fontWeight: '500',
             cursor: 'pointer',
             display: 'flex',
@@ -56,7 +56,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         <button
           onClick={() => onDirectionChange(sortDirection === 'asc' ? 'desc' : 'asc')}
           style={{
-            padding: '8px 10px',
+            padding: '10px 12px',
             borderRadius: '6px',
             border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`,
             backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
