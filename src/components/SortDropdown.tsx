@@ -1,6 +1,5 @@
 import React from 'react';
 import type { SortField, SortDirection } from '../types/subscription';
-import { ChevronUp, ChevronDown } from 'lucide-react';
 
 interface SortDropdownProps {
   sortBy: SortField;
@@ -66,11 +65,13 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.2s',
-            minWidth: '42px',
+            minWidth: '60px',
+            fontSize: '0.8rem',
+            fontWeight: '500',
           }}
           title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
         >
-          {sortDirection === 'asc' ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          {sortDirection === 'asc' ? 'Asc' : 'Desc'}
         </button>
       </div>
 
