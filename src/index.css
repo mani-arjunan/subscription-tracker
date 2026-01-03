@@ -106,7 +106,7 @@ body {
   }
 }
 
-/* Filter UI - show buttons on desktop, dropdown on mobile */
+/* Filter UI - show dropdown on both desktop and mobile */
 .filter-buttons {
   display: block !important;
 }
@@ -116,10 +116,6 @@ body {
 }
 
 @media (max-width: 768px) {
-  .filter-buttons {
-    display: none !important;
-  }
-
   .filter-dropdown {
     display: block !important;
     flex: 1 !important;

@@ -805,47 +805,35 @@ export const Dashboard: React.FC = () => {
 
         {/* Filter & Sort Controls - Combined Row */}
         <div style={{ marginBottom: '40px', display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-          {/* Category Filter - Desktop view (buttons) */}
-          <div style={{ flex: 1, minWidth: '300px' }} className="filter-buttons">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              <button
-                onClick={() => setSelectedCategory('all')}
-                style={{
-                  padding: '6px 12px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '0.85rem',
-                  backgroundColor: selectedCategory === 'all' ? textColor : 'transparent',
-                  color: selectedCategory === 'all' ? bgColor : textColor,
-                  opacity: selectedCategory === 'all' ? 1 : 0.7,
-                  transition: 'all 0.2s',
-                }}
-              >
-                All
-              </button>
+          {/* Category Filter - Desktop view (dropdown) */}
+          <div style={{ flex: 1, minWidth: '150px' }} className="filter-buttons">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value as Category | 'all')}
+              style={{
+                width: '100%',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`,
+                backgroundColor: isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
+                color: textColor,
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                appearance: 'none',
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='${encodeURIComponent(textColor)}' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 10px center',
+                paddingRight: '32px',
+              }}
+            >
+              <option value="all">All Categories</option>
               {CATEGORIES.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    fontSize: '0.85rem',
-                    backgroundColor: selectedCategory === category ? textColor : 'transparent',
-                    color: selectedCategory === category ? bgColor : textColor,
-                    opacity: selectedCategory === category ? 1 : 0.7,
-                    transition: 'all 0.2s',
-                  }}
-                >
+                <option key={category} value={category}>
                   {categoryIcons[category]} {category.charAt(0).toUpperCase() + category.slice(1)}
-                </button>
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
           {/* Category Filter - Mobile view (dropdown) */}
