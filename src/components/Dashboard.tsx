@@ -793,7 +793,6 @@ export const Dashboard: React.FC = () => {
           {/* Category Filter - Desktop view (buttons) */}
           <div style={{ flex: 1, minWidth: '300px' }} className="filter-buttons">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
               <span style={{
                 fontSize: '0.8rem',
                 fontWeight: '600',
@@ -850,7 +849,6 @@ export const Dashboard: React.FC = () => {
           {/* Category Filter - Mobile view (dropdown) */}
           <div style={{ flex: 1, minWidth: '150px' }} className="filter-dropdown">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
               <span style={{
                 fontSize: '0.8rem',
                 fontWeight: '600',
@@ -894,9 +892,6 @@ export const Dashboard: React.FC = () => {
 
           {/* Sort Controls */}
           <div style={{ flex: 1, minWidth: '120px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Sort by</h3>
-            </div>
             <SortDropdown
               sortBy={store.sortBy}
               sortDirection={store.sortDirection}
