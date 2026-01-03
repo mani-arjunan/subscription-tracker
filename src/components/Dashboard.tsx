@@ -132,7 +132,6 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  console.log("OUTSIDE", store)
   const handleEnableNotifications = async () => {
     if (notificationPermission) {
       // Turn off notifications - just update local state

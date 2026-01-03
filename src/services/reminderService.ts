@@ -77,7 +77,6 @@ export const ReminderService = {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    console.log(subscriptions)
     subscriptions.forEach((sub) => {
       if (sub.status !== 'active') return;
 
@@ -88,8 +87,7 @@ export const ReminderService = {
         (renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      console.log(daysUntilRenewal, sub, '++++')
-      if (daysUntilRenewal === sub.reminderDaysBefore) {
+      if (daysUntilRenewal <= sub.reminderDaysBefore) {
         const reminderKey = `reminded-${sub.id}-${sub.renewalDate}`;
         if (!localStorage.getItem(reminderKey)) {
           ReminderService.sendNotification(
