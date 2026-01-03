@@ -625,12 +625,28 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Stats Row - Full Width */}
-        <div style={{ marginBottom: '40px' }}>
-          {/* Total Cost Section with Toggle - At Top Left */}
-          <div style={{ marginBottom: '20px' }}>
+        {/* Stats Row - Full Width with Cost and Renewals Side by Side */}
+        <div style={{
+          display: 'flex',
+          gap: '32px',
+          marginBottom: '40px',
+          alignItems: 'flex-start',
+          padding: '0',
+          width: '100%',
+        }}>
+          {/* Cost Section - Left Side */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            flex: 0,
+            padding: '0',
+            backgroundColor: 'transparent',
+            justifyContent: 'flex-start',
+            transition: 'all 0.2s',
+          }}>
             {/* Toggle Buttons - Only Monthly and Yearly */}
-            <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', gap: '6px' }}>
               {(['monthly', 'yearly'] as const).map((cycle) => (
                 <button
                   key={cycle}
@@ -693,15 +709,14 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Renewals Section - Stacked Vertically */}
+          {/* Renewals Section - Right Side */}
           <div
             onClick={() => setShowUpcomingRenewals(true)}
             style={{
               display: 'flex',
               flexDirection: 'column',
               gap: '16px',
-              width: '100%',
-              maxWidth: '400px',
+              flex: 1,
               cursor: 'pointer',
               padding: '20px',
               borderRadius: '8px',
