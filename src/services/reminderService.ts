@@ -88,7 +88,7 @@ export const ReminderService = {
       );
 
       if (daysUntilRenewal <= sub.reminderDaysBefore) {
-        const reminderKey = `reminded-${sub.id}-${sub.renewalDate}`;
+        const reminderKey = `reminded-${sub.id}-${renewalDate.toISOString().split('T')[0]}`;
         if (!localStorage.getItem(reminderKey)) {
           ReminderService.sendNotification(
             `${sub.name} subscription renews soon`,
