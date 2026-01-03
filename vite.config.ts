@@ -11,8 +11,8 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'icon-192x192.png', 'icon-512x512.png', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: 'Subscription Tracker',
-        short_name: 'Subscriptions',
-        description: 'Track and manage all your subscriptions in one place',
+        short_name: 'Subscription Tracker',
+        description: 'Track and manage all your digital subscriptions in one place',
         theme_color: '#0f1115',
         background_color: '#ffffff',
         display: 'standalone',

@@ -23,6 +23,36 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Add safe area padding for mobile notches and status bars */
+@media (max-width: 768px) {
+  #root > div {
+    padding-top: max(40px, env(safe-area-inset-top));
+  }
+}
+
+/* Increase font sizes on mobile for better readability */
+@media (max-width: 768px) {
+  /* Scale all font sizes by 1.1x on mobile */
+  h1 { font-size: 1.65rem !important; }
+  h2 { font-size: 1.32rem !important; }
+  h3 { font-size: 1.1rem !important; }
+  p { font-size: 1.1rem !important; }
+
+  /* Adjust specific elements - but exclude active count badge */
+  span:not([style*="0.8rem"]) { font-size: 1.05rem !important; }
+  button { font-size: 1.05rem !important; }
+
+  /* Specific to the app's components */
+  [style*="fontSize: '1.2rem'"] { font-size: 1.32rem !important; }
+  [style*="fontSize: '1.15rem'"] { font-size: 1.27rem !important; }
+  [style*="fontSize: '1.1rem'"] { font-size: 1.21rem !important; }
+  [style*="fontSize: '0.9rem'"] { font-size: 0.99rem !important; }
+  [style*="fontSize: '0.875rem'"] { font-size: 0.96rem !important; }
+  [style*="fontSize: '0.75rem'"] { font-size: 0.83rem !important; }
+  [style*="fontSize: '0.7rem'"] { font-size: 0.77rem !important; }
+  [style*="fontSize: '0.8rem'"] { font-size: 0.8rem !important; }
+}
+
 /* Desktop button - show on medium screens and up */
 .desktop-button {
   display: flex !important;

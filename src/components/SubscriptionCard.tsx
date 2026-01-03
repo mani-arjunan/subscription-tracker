@@ -135,11 +135,11 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>{categoryIcons[subscription.category]}</span>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0 }}>{subscription.name}</h3>
             </div>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0, paddingLeft: '20pt' }}>
               <span style={{
                 padding: '4px 12px',
                 borderRadius: '9999px',
-                fontSize: '0.75rem',
+                fontSize: '0.8rem',
                 fontWeight: '500',
                 border: `1px solid ${
                   subscription.status === 'active' ? '#10b981' :
@@ -157,7 +157,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               </span>
               <span style={{
                 display: 'inline-block',
-                fontSize: '0.75rem',
+                fontSize: '0.8rem',
                 fontWeight: '600',
                 backgroundColor: isDark ? categoryColors[subscription.category].darkBg : categoryColors[subscription.category].lightBg,
                 color: isDark ? categoryColors[subscription.category].dark : categoryColors[subscription.category].light,
@@ -343,18 +343,18 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
       backgroundColor: bgColor,
       color: textColor,
     }}>
-      <div style={{ padding: '12px 16px' }}>
+      <div style={{ padding: '16px 20px' }}>
         {/* Row 1: Title and Badges */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1 }}>
             <span style={{ fontSize: '1.75rem', flexShrink: 0, lineHeight: 1 }}>{categoryIcons[subscription.category]}</span>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', margin: 0, lineHeight: 1.2 }}>{subscription.name}</h3>
           </div>
-          <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '6px', flexShrink: 0, alignItems: 'center', paddingLeft: '20pt' }}>
             <span style={{
               padding: '3px 10px',
               borderRadius: '9999px',
-              fontSize: '0.7rem',
+              fontSize: '0.8rem',
               fontWeight: '500',
               border: `1px solid ${
                 subscription.status === 'active' ? '#10b981' :
@@ -371,7 +371,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
             </span>
             <span style={{
               display: 'inline-block',
-              fontSize: '0.7rem',
+              fontSize: '0.8rem',
               fontWeight: '600',
               backgroundColor: isDark ? categoryColors[subscription.category].darkBg : categoryColors[subscription.category].lightBg,
               color: isDark ? categoryColors[subscription.category].dark : categoryColors[subscription.category].light,
@@ -410,26 +410,26 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         </div>
 
         {/* Row 2: Plan and Yearly */}
-        <div style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: `1px solid ${borderColor}` }}>
+        <div style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: `1px solid ${borderColor}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
             <div>
               <span style={{ fontSize: '0.75rem', color: secondaryTextColor, opacity: 0.6, textTransform: 'uppercase', fontWeight: '500', letterSpacing: '0.5px' }}>Billing Plan</span>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginTop: '6px' }}>
                 <p style={{ fontSize: '1.2rem', fontWeight: '700', color: textColor, margin: 0 }}>₹{subscription.cost.toFixed(0)}</p>
                 <span style={{ fontSize: '0.8rem', color: secondaryTextColor, opacity: 0.7, fontWeight: '500', textTransform: 'capitalize' }}>/{subscription.billingCycle}</span>
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <span style={{ fontSize: '0.75rem', color: secondaryTextColor, opacity: 0.6, textTransform: 'uppercase', fontWeight: '500', letterSpacing: '0.5px' }}>Yearly Cost</span>
-              <p style={{ fontSize: '1.2rem', fontWeight: '700', color: textColor, margin: '4px 0 0 0' }}>₹{yearlyAmount}</p>
+              <p style={{ fontSize: '1.2rem', fontWeight: '700', color: textColor, margin: '6px 0 0 0' }}>₹{yearlyAmount}</p>
             </div>
           </div>
         </div>
 
         {/* Row 3: Next Renewal */}
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '28px' }}>
           <span style={{ color: secondaryTextColor, opacity: 0.6, fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: '600', letterSpacing: '0.5px' }}>Next Renewal</span>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
             <p style={{ fontWeight: '600', color: textColor, fontSize: '1.1rem', margin: 0 }}>
               {renewalDate.toLocaleDateString()}
               {daysUntilRenewal > 0 && (
@@ -468,7 +468,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         </div>
 
         {/* Row 4: Action Buttons */}
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
             onClick={() => onEdit(subscription)}
             style={{
@@ -478,7 +478,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               justifyContent: 'center',
               gap: '4px',
               fontWeight: '600',
-              padding: '8px 0',
+              padding: '10px 0',
               borderRadius: '6px',
               border: 'none',
               backgroundColor: isDark ? 'rgba(59, 130, 246, 0.1)' : '#dbeafe',
@@ -510,7 +510,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               justifyContent: 'center',
               gap: '4px',
               fontWeight: '600',
-              padding: '8px 0',
+              padding: '10px 0',
               borderRadius: '6px',
               border: 'none',
               backgroundColor: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2',

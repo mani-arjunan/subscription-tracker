@@ -9,7 +9,7 @@ import { ReminderService } from '../services/reminderService';
 import { BackupService } from '../services/backupService';
 import { calendarService } from '../services/calendarService';
 import { useTheme } from '../context/ThemeContext';
-import { Plus, Download, Upload, Bell, Settings, Moon, Sun } from 'lucide-react';
+import { Plus, Upload, Bell, Settings, Moon, Sun } from 'lucide-react';
 import { testSubscriptions } from '../data/testData';
 
 const CATEGORIES: Category[] = ['streaming', 'music', 'productivity', 'gaming', 'education', 'other'];
@@ -119,7 +119,9 @@ export const Dashboard: React.FC = () => {
 
   const checkNotificationPermission = async () => {
     if ('Notification' in window) {
-      setNotificationPermission(Notification.permission === 'granted');
+      const isDisabled = localStorage.getItem('notificationsDisabled') === 'true';
+      const isGranted = Notification.permission === 'granted';
+      setNotificationPermission(isGranted && !isDisabled);
     }
   };
 
@@ -128,15 +130,39 @@ export const Dashboard: React.FC = () => {
   };
 
   const handleEnableNotifications = async () => {
-    const granted = await ReminderService.requestPermission();
-    setNotificationPermission(granted);
+    if (notificationPermission) {
+      // Turn off notifications - just update local state
+      setNotificationPermission(false);
+      localStorage.setItem('notificationsDisabled', 'true');
+    } else {
+      // Turn on notifications - request permission
+      const granted = await ReminderService.requestPermission();
+      setNotificationPermission(granted);
+      if (granted) {
+        localStorage.removeItem('notificationsDisabled');
+      }
+    }
   };
 
   const handleAddSubscription = (data: Omit<Subscription, 'id' | 'createdAt'>) => {
     if (editingSubscription) {
       store.updateSubscription(editingSubscription.id, data);
+      if (notificationPermission && 'Notification' in window) {
+        new Notification('Subscription Updated', {
+          body: `${data.name} has been updated`,
+          icon: '/favicon.svg',
+          tag: 'subscription-update',
+        });
+      }
     } else {
       store.addSubscription(data);
+      if (notificationPermission && 'Notification' in window) {
+        new Notification('Subscription Added', {
+          body: `${data.name} has been added to your subscriptions`,
+          icon: '/favicon.svg',
+          tag: 'subscription-add',
+        });
+      }
     }
     setShowForm(false);
     setEditingSubscription(undefined);
@@ -148,22 +174,15 @@ export const Dashboard: React.FC = () => {
   };
 
   const handleDeleteSubscription = (id: string) => {
-    if (confirm('Are you sure you want to delete this subscription?')) {
-      store.deleteSubscription(id);
+    const subscription = store.subscriptions.find(s => s.id === id);
+    store.deleteSubscription(id);
+    if (notificationPermission && 'Notification' in window && subscription) {
+      new Notification('Subscription Deleted', {
+        body: `${subscription.name} has been removed from your subscriptions`,
+        icon: '/favicon.svg',
+        tag: 'subscription-delete',
+      });
     }
-  };
-
-  const handleExport = () => {
-    const data = store.exportData();
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `subscriptions-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   const handleImport = () => {
@@ -222,6 +241,18 @@ export const Dashboard: React.FC = () => {
     calendarService.exportAndDownloadCalendar(store.subscriptions);
   };
 
+  const handleTestNotification = async () => {
+    if (notificationPermission && 'Notification' in window) {
+      new Notification('Test Notification', {
+        body: 'This is a test notification from Subscription Tracker',
+        icon: '/favicon.svg',
+        tag: 'test-notification',
+      });
+    } else {
+      alert('Please enable notifications first');
+    }
+  };
+
   const filteredSubscriptions =
     selectedCategory === 'all'
       ? store.subscriptions
@@ -260,239 +291,304 @@ export const Dashboard: React.FC = () => {
   return (
     <div style={{ backgroundColor: bgColor, color: textColor, minHeight: '100vh' }}>
       <InstallPrompt />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 16px', paddingTop: 'clamp(20px, 8vw, 60px)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px 16px', paddingTop: 'clamp(40px, 8vw, 60px)' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', gap: '16px', flexWrap: 'wrap' }}>
           <div style={{ minWidth: '200px' }}>
             <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2.25rem)', fontWeight: 'bold', marginBottom: '8px' }}>Subscription Tracker</h1>
             <p style={{ opacity: 0.7, fontSize: 'clamp(0.875rem, 3vw, 1rem)' }}>Manage and track all your subscriptions</p>
           </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' }}>
             <button
               onClick={handleEnableNotifications}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
+                justifyContent: 'center',
+                padding: '8px 12px',
                 borderRadius: '6px',
                 border: 'none',
-                fontSize: '0.8rem',
+                fontSize: '0.75rem',
                 fontWeight: '500',
                 cursor: 'pointer',
-                backgroundColor: notificationPermission ? (isDark ? 'rgba(34, 197, 94, 0.2)' : '#22c55e') : (isDark ? 'rgba(234, 179, 8, 0.2)' : '#eab308'),
-                color: notificationPermission ? (isDark ? '#4ade80' : 'white') : (isDark ? '#facc15' : 'white'),
+                backgroundColor: notificationPermission ? (isDark ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.15)') : (isDark ? 'rgba(234, 179, 8, 0.2)' : 'rgba(234, 179, 8, 0.15)'),
+                color: notificationPermission ? (isDark ? '#4ade80' : '#16a34a') : (isDark ? '#facc15' : '#ca8a04'),
                 whiteSpace: 'nowrap',
                 transition: 'all 0.2s',
+                gap: '4px',
               }}
               onMouseEnter={(e) => {
                 if (notificationPermission) {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.3)' : '#16a34a';
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.3)' : 'rgba(34, 197, 94, 0.25)';
                 } else {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(234, 179, 8, 0.3)' : '#ca8a04';
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(234, 179, 8, 0.3)' : 'rgba(234, 179, 8, 0.25)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (notificationPermission) {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.2)' : '#22c55e';
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.2)' : 'rgba(34, 197, 94, 0.15)';
                 } else {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(234, 179, 8, 0.2)' : '#eab308';
+                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(234, 179, 8, 0.2)' : 'rgba(234, 179, 8, 0.15)';
                 }
               }}
+              title={notificationPermission ? 'Notifications enabled' : 'Enable notifications'}
             >
               <Bell size={16} />
-              {notificationPermission ? 'On' : 'Enable'}
+              <span>{notificationPermission ? 'On' : 'Off'}</span>
             </button>
             <button
               onClick={toggleTheme}
               style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 padding: '8px',
-                borderRadius: '8px',
-                border: 'none',
+                borderRadius: '6px',
                 backgroundColor: 'transparent',
                 cursor: 'pointer',
-                color: textColor,
+                color: isDark ? '#fb923c' : '#3b82f6',
+                transition: 'all 0.2s',
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.7';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
+              title={isDark ? 'Light mode' : 'Dark mode'}
             >
-              {isDark ? <Sun size={24} /> : <Moon size={24} />}
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             <button
               onClick={() => setShowSettings(!showSettings)}
               style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 padding: '8px',
-                borderRadius: '8px',
-                border: 'none',
+                borderRadius: '6px',
                 backgroundColor: 'transparent',
                 cursor: 'pointer',
-                color: textColor,
+                color: showSettings ? (isDark ? '#60a5fa' : '#3b82f6') : textColor,
+                transition: 'all 0.2s',
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '0.7';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '1';
+              }}
+              title="Settings"
             >
-              <Settings size={24} />
+              <Settings size={20} />
             </button>
           </div>
         </div>
 
-        {/* Settings Panel */}
+        {/* Settings Menu - Floating List at Top Right */}
         {showSettings && (
-          <div style={{ marginBottom: '40px' }}>
-            <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.125rem)', fontWeight: 'bold', marginBottom: '12px' }}>Quick Actions</h3>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button
-                onClick={handleExport}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px',
-                  backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#3b82f6',
-                  color: isDark ? '#60a5fa' : 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '0.8rem',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(59, 130, 246, 0.3)' : '#2563eb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(59, 130, 246, 0.2)' : '#3b82f6';
-                }}
-              >
-                <Download size={16} />
-                Export
-              </button>
-              <button
-                onClick={handleImport}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px',
-                  backgroundColor: isDark ? 'rgba(34, 197, 94, 0.2)' : '#22c55e',
-                  color: isDark ? '#4ade80' : 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '0.8rem',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.3)' : '#16a34a';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(34, 197, 94, 0.2)' : '#22c55e';
-                }}
-              >
-                <Upload size={16} />
-                Import
-              </button>
-              <button
-                onClick={() => setShowBackupSettings(true)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px',
-                  backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : '#e0f2fe',
-                  color: isDark ? '#7dd3fc' : '#0369a1',
-                  border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.3)' : '#7dd3fc'}`,
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '0.8rem',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(59, 130, 246, 0.25)' : '#cffafe';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(59, 130, 246, 0.15)' : '#e0f2fe';
-                }}
-              >
-                💾 Backup
-              </button>
-              <button
-                onClick={handleExportCalendar}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '8px 12px',
-                  backgroundColor: isDark ? 'rgba(168, 85, 247, 0.15)' : '#f3e0ff',
-                  color: isDark ? '#d8b4fe' : '#7c3aed',
-                  border: `1px solid ${isDark ? 'rgba(168, 85, 247, 0.3)' : '#e9d5ff'}`,
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  fontSize: '0.8rem',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(168, 85, 247, 0.25)' : '#f0d9ff';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isDark ? 'rgba(168, 85, 247, 0.15)' : '#f3e0ff';
-                }}
-              >
-                📅 Export to Calendar
-              </button>
-              {import.meta.env.VITE_DEV_ENVIRONMENT && (
-                <>
-                  <button
-                    onClick={handleLoadTestData}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '8px 12px',
-                      backgroundColor: isDark ? 'rgba(168, 85, 247, 0.2)' : '#a855f7',
-                      color: isDark ? '#d8b4fe' : 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: '500',
-                      fontSize: '0.8rem',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(168, 85, 247, 0.3)' : '#9333ea';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(168, 85, 247, 0.2)' : '#a855f7';
-                    }}
-                  >
-                    🧪 Load Test Data
-                  </button>
-                  <button
-                    onClick={handleClearAllData}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '8px 12px',
-                      backgroundColor: isDark ? 'rgba(239, 68, 68, 0.2)' : '#ef4444',
-                      color: isDark ? '#fca5a5' : 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: '500',
-                      fontSize: '0.8rem',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.3)' : '#dc2626';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.2)' : '#ef4444';
-                    }}
-                  >
-                    🗑️ Clear All Data
-                  </button>
-                </>
-              )}
+          <div
+            onClick={() => setShowSettings(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 40,
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'fixed',
+                top: 'max(60px, env(safe-area-inset-top))',
+                right: '16px',
+                backgroundColor: bgColor,
+                border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.2)' : '#e0e0e0'}`,
+                borderRadius: '8px',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
+                minWidth: '200px',
+                zIndex: 50,
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <button
+                  onClick={() => {
+                    handleImport();
+                    setShowSettings(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 16px',
+                    backgroundColor: 'transparent',
+                    color: textColor,
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    textAlign: 'left',
+                    transition: 'background-color 0.2s',
+                    borderBottom: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.1)' : '#f3f4f6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  <Upload size={16} />
+                  Import
+                </button>
+                <button
+                  onClick={() => {
+                    setShowBackupSettings(true);
+                    setShowSettings(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 16px',
+                    backgroundColor: 'transparent',
+                    color: textColor,
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    textAlign: 'left',
+                    transition: 'background-color 0.2s',
+                    borderBottom: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.1)' : '#f3f4f6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  💾 Backup Settings
+                </button>
+                <button
+                  onClick={() => {
+                    handleExportCalendar();
+                    setShowSettings(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 16px',
+                    backgroundColor: 'transparent',
+                    color: textColor,
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    textAlign: 'left',
+                    transition: 'background-color 0.2s',
+                    borderBottom: import.meta.env.VITE_DEV_ENVIRONMENT ? `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}` : 'none',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.1)' : '#f3f4f6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  📅 Export to Calendar
+                </button>
+                {import.meta.env.VITE_DEV_ENVIRONMENT && (
+                  <>
+                    <button
+                      onClick={() => {
+                        handleTestNotification();
+                        setShowSettings(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        color: textColor,
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: '500',
+                        textAlign: 'left',
+                        transition: 'background-color 0.2s',
+                        borderBottom: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.1)' : '#f3f4f6';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      🔔 Test Notification
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleLoadTestData();
+                        setShowSettings(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        color: textColor,
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: '500',
+                        textAlign: 'left',
+                        transition: 'background-color 0.2s',
+                        borderBottom: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.1)' : '#f3f4f6';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      🧪 Load Test Data
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleClearAllData();
+                        setShowSettings(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 16px',
+                        backgroundColor: 'transparent',
+                        color: '#ef4444',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: '500',
+                        textAlign: 'left',
+                        transition: 'background-color 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }}
+                    >
+                      🗑️ Clear All Data
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -630,7 +726,7 @@ export const Dashboard: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
             <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
             <span style={{
-              fontSize: '0.75rem',
+              fontSize: '0.8rem',
               fontWeight: '600',
               backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
               color: isDark ? '#60a5fa' : '#2563eb',
@@ -687,7 +783,7 @@ export const Dashboard: React.FC = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
             <h3 style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)', fontWeight: 'bold', margin: 0 }}>Filter by Category</h3>
             <span style={{
-              fontSize: '0.75rem',
+              fontSize: '0.8rem',
               fontWeight: '600',
               backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
               color: isDark ? '#60a5fa' : '#2563eb',
@@ -773,17 +869,16 @@ export const Dashboard: React.FC = () => {
           }}
           style={{
             position: 'fixed',
-            bottom: '32px',
-            right: '32px',
+            bottom: '24px',
+            right: '24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '56px',
-            height: '56px',
+            width: '64px',
+            height: '64px',
             padding: '0',
             backgroundColor: isDark ? 'rgba(201, 194, 166, 0.15)' : '#f0f0f0',
             color: isDark ? '#c9c2a6' : '#000000',
-            border: isDark ? '1px solid rgba(201, 194, 166, 0.3)' : '1px solid #d0d0d0',
             borderRadius: '50%',
             cursor: 'pointer',
             fontSize: '1.5rem',
@@ -800,7 +895,7 @@ export const Dashboard: React.FC = () => {
           }}
           className="mobile-button"
         >
-          <Plus size={28} />
+          <Plus size={32} />
         </button>
 
         {/* Subscriptions Grid */}
