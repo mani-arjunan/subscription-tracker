@@ -625,25 +625,45 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Stats Row - Minimal with Cost on Top */}
+        {/* Stats Row - Full Width with Cost on Top */}
         <div style={{
           display: 'flex',
-          gap: '24px',
+          gap: '32px',
           marginBottom: '40px',
-          alignItems: 'flex-start',
-          flexWrap: 'wrap',
-          padding: '8px 0',
+          alignItems: 'stretch',
+          padding: '0',
+          width: '100%',
         }}>
-          {/* Cost Section - Stacked Vertically */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* Cost Section - Stacked Vertically, Flex Grow */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            flex: 1,
+            padding: '20px',
+            borderRadius: '8px',
+            border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
+            backgroundColor: isDark ? 'transparent' : '#f9f9f9',
+            justifyContent: 'space-between',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
+            e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
+            e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
+          }}>
             {/* Toggle Buttons - Only Monthly and Yearly */}
-            <div style={{ display: 'flex', gap: '4px' }}>
+            <div style={{ display: 'flex', gap: '6px' }}>
               {(['monthly', 'yearly'] as const).map((cycle) => (
                 <button
                   key={cycle}
                   onClick={() => setSelectedCostCycle(cycle)}
                   style={{
-                    padding: '4px 10px',
+                    flex: 1,
+                    padding: '6px 12px',
                     borderRadius: '4px',
                     border: selectedCostCycle === cycle
                       ? `1px solid ${isDark ? '#60a5fa' : '#3b82f6'}`
@@ -652,7 +672,7 @@ export const Dashboard: React.FC = () => {
                       ? isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff'
                       : isDark ? 'transparent' : '#ffffff',
                     color: isDark ? '#c9c2a6' : '#666666',
-                    fontSize: '0.7rem',
+                    fontSize: '0.75rem',
                     fontWeight: selectedCostCycle === cycle ? '600' : '500',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
@@ -675,30 +695,24 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Total Cost Display */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{
-                fontSize: '0.8rem',
+                fontSize: '0.9rem',
                 fontWeight: '600',
                 color: isDark ? '#c9c2a6' : '#666666',
               }}>
                 Total Cost
               </span>
               <span style={{
-                fontSize: '1.3rem',
+                fontSize: '2rem',
                 fontWeight: '700',
                 color: isDark ? '#c9c2a6' : '#000000',
+                lineHeight: '1.2',
               }}>
                 ₹{selectedCycleCost}
               </span>
             </div>
           </div>
-
-          {/* Divider */}
-          <div style={{
-            width: '1px',
-            height: '68px',
-            backgroundColor: isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb',
-          }} />
 
           {/* Renewals Section - Stacked Vertically to Match Cost */}
           <div
@@ -706,46 +720,48 @@ export const Dashboard: React.FC = () => {
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '8px',
+              gap: '16px',
+              flex: 1,
               cursor: 'pointer',
-              padding: '8px 12px',
-              borderRadius: '6px',
+              padding: '20px',
+              borderRadius: '8px',
               transition: 'all 0.2s',
               backgroundColor: expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
-                : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
+                : isDark ? 'transparent' : '#f9f9f9',
               border: expiredRenewals.length > 0
                 ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
-                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
+                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
+              justifyContent: 'space-between',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.15)' : '#fecaca'
-                : isDark ? 'rgba(201, 194, 166, 0.1)' : '#f0f0f0';
+                : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
               e.currentTarget.style.border = expiredRenewals.length > 0
                 ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`
-                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d1d5db'}`;
+                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
-                : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9';
+                : isDark ? 'transparent' : '#f9f9f9';
               e.currentTarget.style.border = expiredRenewals.length > 0
                 ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
-                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`;
+                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
             }}
           >
             {/* Icon + Label on first line */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{
-                fontSize: '1rem',
+                fontSize: '1.2rem',
                 fontWeight: '600',
                 color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#666666'),
               }}>
                 {expiredRenewals.length > 0 ? '⚠️' : '📅'}
               </span>
               <span style={{
-                fontSize: '0.8rem',
+                fontSize: '0.9rem',
                 fontWeight: '600',
                 color: isDark ? '#c9c2a6' : '#666666',
               }}>
@@ -754,25 +770,26 @@ export const Dashboard: React.FC = () => {
             </div>
 
             {/* Count + Status on second line */}
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <span style={{
-                fontSize: '1.4rem',
+                fontSize: '2rem',
                 fontWeight: '700',
                 color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#000000'),
+                lineHeight: '1.2',
               }}>
                 {expiredRenewals.length + upcomingRenewals.length}
               </span>
               {expiredRenewals.length > 0 ? (
                 <span style={{
-                  fontSize: '0.7rem',
+                  fontSize: '0.8rem',
                   color: '#ef4444',
                   fontWeight: '600',
                 }}>
-                  ({expiredRenewals.length} exp)
+                  {expiredRenewals.length} expired
                 </span>
               ) : (
                 <span style={{
-                  fontSize: '0.7rem',
+                  fontSize: '0.8rem',
                   color: isDark ? '#c9c2a6' : '#999999',
                   opacity: 0.7,
                 }}>
