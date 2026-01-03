@@ -642,15 +642,9 @@ export const Dashboard: React.FC = () => {
             flex: 1,
             padding: '20px',
             borderRadius: '8px',
-            backgroundColor: isDark ? 'transparent' : 'transparent',
+            backgroundColor: 'transparent',
             justifyContent: 'space-between',
             transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = isDark ? 'transparent' : 'transparent';
           }}>
             {/* Toggle Buttons - Only Monthly and Yearly */}
             <div style={{ display: 'flex', gap: '6px' }}>
