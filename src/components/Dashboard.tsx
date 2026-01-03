@@ -111,8 +111,15 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      ReminderService.checkAndNotifyReminders(store.subscriptions);
-    }, 60000);
+      ReminderService.sendNotification(
+        `subscription renews soon`,
+        {
+          body: `Your`,
+          tag: `reminder`
+        }
+      );
+      // ReminderService.checkAndNotifyReminders(store.subscriptions);
+    }, 1000); // 24 hours
 
     return () => clearInterval(interval);
   }, [store.subscriptions]);

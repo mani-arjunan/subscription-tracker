@@ -345,7 +345,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
     }}>
       <div style={{ padding: '16px 20px' }}>
         {/* Row 1: Title and Badges */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flex: 1 }}>
             <span style={{ fontSize: '1.75rem', flexShrink: 0, lineHeight: 1 }}>{categoryIcons[subscription.category]}</span>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', margin: 0, lineHeight: 1.2 }}>{subscription.name}</h3>
@@ -461,7 +461,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
                 }}
                 title={`Renew at ${subscription.provider}`}
               >
-                Renew Now
+                Renew
               </button>
             )}
           </div>

@@ -51,6 +51,16 @@ body {
   [style*="fontSize: '0.75rem'"] { font-size: 0.83rem !important; }
   [style*="fontSize: '0.7rem'"] { font-size: 0.77rem !important; }
   [style*="fontSize: '0.8rem'"] { font-size: 0.8rem !important; }
+
+  /* Reduce card content font sizes on mobile */
+  [style*="fontSize: '1.25rem'"] { font-size: 1.05rem !important; }
+  [style*="fontSize: '0.95rem'"] { font-size: 0.85rem !important; }
+
+  /* Reduce "Renew Now" button font size */
+  button[style*="padding: '6px 14px'"],
+  button[style*="padding: '10px 0'"] {
+    font-size: 0.75rem !important;
+  }
 }
 
 /* Desktop button - show on medium screens and up */
