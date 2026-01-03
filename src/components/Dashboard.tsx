@@ -723,17 +723,23 @@ export const Dashboard: React.FC = () => {
               transition: 'all 0.2s',
               backgroundColor: expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
+                : upcomingRenewals.length > 0
+                ? isDark ? 'rgba(234, 179, 8, 0.1)' : '#fef3c7'
                 : isDark ? 'transparent' : 'transparent',
               justifyContent: 'space-between',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.15)' : '#fecaca'
+                : upcomingRenewals.length > 0
+                ? isDark ? 'rgba(234, 179, 8, 0.15)' : '#fde047'
                 : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
+                : upcomingRenewals.length > 0
+                ? isDark ? 'rgba(234, 179, 8, 0.1)' : '#fef3c7'
                 : isDark ? 'transparent' : 'transparent';
             }}
           >
