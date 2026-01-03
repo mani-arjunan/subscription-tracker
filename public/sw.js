@@ -21,7 +21,7 @@ self.addEventListener('periodicsync', (event) => {
 // Check subscriptions and send notifications
 async function checkSubscriptionsAndNotify() {
   try {
-    // Get subscriptions from IndexedDB
+    // Get subscriptions from cache
     const subscriptions = await getSubscriptionsFromDB();
 
     if (!subscriptions || subscriptions.length === 0) {
@@ -33,6 +33,9 @@ async function checkSubscriptionsAndNotify() {
     today.setHours(0, 0, 0, 0);
     const notificationsSent = [];
 
+    // Get previously sent reminders from cache
+    const sentReminders = await getSentReminders();
+
     subscriptions.forEach((sub) => {
       if (sub.status !== 'active') return;
 
@@ -43,34 +46,37 @@ async function checkSubscriptionsAndNotify() {
         (renewalDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      // Send notification if it's the reminder day
+      // Send notification if it's the reminder day and we haven't already sent it
       if (daysUntilRenewal === (sub.reminderDaysBefore || 3)) {
         const reminderKey = `reminded-${sub.id}-${sub.renewalDate}`;
 
-        // Check if we already sent this reminder (using localStorage via SW cache)
-        self.registration.showNotification(
-          `${sub.name} subscription renews soon`,
-          {
-            body: `Your subscription will renew in ${daysUntilRenewal} day(s) on ${renewalDate.toLocaleDateString()}`,
-            icon: '/icon-192x192.png',
-            badge: '/icon-192x192.png',
-            tag: `reminder-${sub.id}`,
-            data: {
-              subscriptionId: sub.id,
-              renewalDate: sub.renewalDate,
-            },
-          }
-        );
-        notificationsSent.push(reminderKey);
+        // Check if we already sent this reminder
+        if (!sentReminders.includes(reminderKey)) {
+          self.registration.showNotification(
+            `${sub.name} subscription renews soon`,
+            {
+              body: `Your subscription will renew in ${daysUntilRenewal} day(s) on ${renewalDate.toLocaleDateString()}`,
+              icon: '/icon-192x192.png',
+              badge: '/icon-192x192.png',
+              tag: `reminder-${sub.id}`,
+              data: {
+                subscriptionId: sub.id,
+                renewalDate: sub.renewalDate,
+              },
+            }
+          );
+          notificationsSent.push(reminderKey);
+        }
       }
     });
 
     // Save that we sent these notifications
     if (notificationsSent.length > 0) {
+      const updatedReminders = [...sentReminders, ...notificationsSent];
       const cache = await caches.open(CACHE_NAME);
       await cache.put(
         new Request('notification-cache'),
-        new Response(JSON.stringify({ sent: notificationsSent, timestamp: Date.now() }))
+        new Response(JSON.stringify({ sent: updatedReminders, timestamp: Date.now() }))
       );
     }
 
@@ -80,11 +86,9 @@ async function checkSubscriptionsAndNotify() {
   }
 }
 
-// Get subscriptions from IndexedDB
+// Get subscriptions from cache
 async function getSubscriptionsFromDB() {
   return new Promise((resolve, reject) => {
-    // Since we can't reliably access user's IndexedDB from SW,
-    // we'll use a fallback: check localStorage that was synced to a cache
     caches.open(CACHE_NAME).then((cache) => {
       cache.match('subscriptions-data').then((response) => {
         if (response) {
@@ -97,6 +101,22 @@ async function getSubscriptionsFromDB() {
       }).catch(() => resolve([]));
     }).catch(() => reject(new Error('Failed to access cache')));
   });
+}
+
+// Get previously sent reminders from cache
+async function getSentReminders() {
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const response = await cache.match('notification-cache');
+    if (response) {
+      const data = await response.json();
+      return data.sent || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('[SW] Error getting sent reminders:', error);
+    return [];
+  }
 }
 
 // Message handler for updating subscriptions from main thread

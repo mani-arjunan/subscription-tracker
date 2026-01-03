@@ -89,7 +89,7 @@ export const ReminderService = {
 
       if (daysUntilRenewal === sub.reminderDaysBefore) {
         const reminderKey = `reminded-${sub.id}-${sub.renewalDate}`;
-        if (!sessionStorage.getItem(reminderKey)) {
+        if (!localStorage.getItem(reminderKey)) {
           ReminderService.sendNotification(
             `${sub.name} subscription renews soon`,
             {
@@ -99,7 +99,7 @@ export const ReminderService = {
               tag: `reminder-${sub.id}`,
             }
           );
-          sessionStorage.setItem(reminderKey, 'true');
+          localStorage.setItem(reminderKey, 'true');
         }
       }
     });
