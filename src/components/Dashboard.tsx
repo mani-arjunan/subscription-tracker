@@ -700,20 +700,20 @@ export const Dashboard: React.FC = () => {
             backgroundColor: isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb',
           }} />
 
-          {/* Renewals Section - Clickable */}
+          {/* Renewals Section - Stacked Vertically to Match Cost */}
           <div
             onClick={() => setShowUpcomingRenewals(true)}
             style={{
               display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
+              flexDirection: 'column',
+              gap: '8px',
               cursor: 'pointer',
-              padding: '6px 12px',
+              padding: '8px 12px',
               borderRadius: '6px',
               transition: 'all 0.2s',
               backgroundColor: expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
-                : 'transparent',
+                : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9',
               border: expiredRenewals.length > 0
                 ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
                 : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`,
@@ -721,7 +721,7 @@ export const Dashboard: React.FC = () => {
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.15)' : '#fecaca'
-                : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9';
+                : isDark ? 'rgba(201, 194, 166, 0.1)' : '#f0f0f0';
               e.currentTarget.style.border = expiredRenewals.length > 0
                 ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`
                 : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d1d5db'}`;
@@ -729,43 +729,57 @@ export const Dashboard: React.FC = () => {
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
-                : 'transparent';
+                : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f9f9f9';
               e.currentTarget.style.border = expiredRenewals.length > 0
                 ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
                 : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e5e7eb'}`;
             }}
           >
-            <span style={{
-              fontSize: '0.95rem',
-              fontWeight: '600',
-              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#666666'),
-            }}>
-              {expiredRenewals.length > 0 ? '⚠️' : '📅'}
-            </span>
-            <span style={{
-              fontSize: '0.85rem',
-              color: isDark ? '#c9c2a6' : '#666666',
-            }}>
-              Renewals
-            </span>
-            <span style={{
-              fontSize: '1.3rem',
-              fontWeight: '700',
-              color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#000000'),
-              minWidth: '28px',
-              textAlign: 'center',
-            }}>
-              {expiredRenewals.length + upcomingRenewals.length}
-            </span>
-            {expiredRenewals.length > 0 && (
+            {/* Icon + Label on first line */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{
-                fontSize: '0.7rem',
-                color: '#ef4444',
+                fontSize: '1rem',
                 fontWeight: '600',
+                color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#666666'),
               }}>
-                ({expiredRenewals.length} exp)
+                {expiredRenewals.length > 0 ? '⚠️' : '📅'}
               </span>
-            )}
+              <span style={{
+                fontSize: '0.8rem',
+                fontWeight: '600',
+                color: isDark ? '#c9c2a6' : '#666666',
+              }}>
+                Renewals
+              </span>
+            </div>
+
+            {/* Count + Status on second line */}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{
+                fontSize: '1.4rem',
+                fontWeight: '700',
+                color: expiredRenewals.length > 0 ? '#ef4444' : (isDark ? '#c9c2a6' : '#000000'),
+              }}>
+                {expiredRenewals.length + upcomingRenewals.length}
+              </span>
+              {expiredRenewals.length > 0 ? (
+                <span style={{
+                  fontSize: '0.7rem',
+                  color: '#ef4444',
+                  fontWeight: '600',
+                }}>
+                  ({expiredRenewals.length} exp)
+                </span>
+              ) : (
+                <span style={{
+                  fontSize: '0.7rem',
+                  color: isDark ? '#c9c2a6' : '#999999',
+                  opacity: 0.7,
+                }}>
+                  Next 30 days
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
