@@ -642,18 +642,15 @@ export const Dashboard: React.FC = () => {
             flex: 1,
             padding: '20px',
             borderRadius: '8px',
-            border: `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
-            backgroundColor: isDark ? 'transparent' : '#f9f9f9',
+            backgroundColor: isDark ? 'transparent' : 'transparent',
             justifyContent: 'space-between',
             transition: 'all 0.2s',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
             e.currentTarget.style.backgroundColor = isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.border = `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
-            e.currentTarget.style.backgroundColor = isDark ? 'transparent' : '#f9f9f9';
+            e.currentTarget.style.backgroundColor = isDark ? 'transparent' : 'transparent';
           }}>
             {/* Toggle Buttons - Only Monthly and Yearly */}
             <div style={{ display: 'flex', gap: '6px' }}>
@@ -728,27 +725,18 @@ export const Dashboard: React.FC = () => {
               transition: 'all 0.2s',
               backgroundColor: expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
-                : isDark ? 'transparent' : '#f9f9f9',
-              border: expiredRenewals.length > 0
-                ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
-                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`,
+                : isDark ? 'transparent' : 'transparent',
               justifyContent: 'space-between',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.15)' : '#fecaca'
                 : isDark ? 'rgba(201, 194, 166, 0.05)' : '#f0f0f0';
-              e.currentTarget.style.border = expiredRenewals.length > 0
-                ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`
-                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.3)' : '#d0d0d0'}`;
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = expiredRenewals.length > 0
                 ? isDark ? 'rgba(239, 68, 68, 0.1)' : '#fee2e2'
-                : isDark ? 'transparent' : '#f9f9f9';
-              e.currentTarget.style.border = expiredRenewals.length > 0
-                ? `1px solid ${isDark ? 'rgba(239, 68, 68, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`
-                : `1px solid ${isDark ? 'rgba(201, 194, 166, 0.1)' : '#e0e0e0'}`;
+                : isDark ? 'transparent' : 'transparent';
             }}
           >
             {/* Icon + Label on first line */}
